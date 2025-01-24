@@ -9,3 +9,6 @@ __pycache__/
 
 # Ignore VSCode files
 .vscode/
+
+# Pytest
+.pytest_cache/
