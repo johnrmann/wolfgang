@@ -17,6 +17,28 @@ class Token:
 		else:
 			raise ValueError("ticks XOR midi_ticks must be provided")
 
+	def __lt__(self, other):
+		return self.time < other.time
+
+	def __gt__(self, other):
+		return self.time > other.time
+	
+	@property
+	def start(self):
+		return self.time
+	
+	@start.setter
+	def start(self, value):
+		self.time = value
+	
+	@property
+	def start_midi(self):
+		return int(self._midi_ticks_per_beat * (self.time / TICKS_PER_BEAT))
+	
+	@start_midi.setter
+	def start_midi(self, val):
+		self.time = int(TICKS_PER_BEAT * (val / self._midi_ticks_per_beat))
+
 	def time_index(self):
 		beats = self.time // TICKS_PER_BEAT
 		ticks = self.time % TICKS_PER_BEAT
@@ -62,14 +84,6 @@ class Note(Token):
 		duration = self.duration
 		pitch = self.pitch
 		return f"NOTE {beats} {ticks} {duration} {pitch}"
-	
-	@property
-	def start(self):
-		return self.time
-	
-	@start.setter
-	def start(self, value):
-		self.time = value
 
 	@property
 	def end(self):
@@ -80,17 +94,66 @@ class Note(Token):
 		self.duration = value - self.time
 
 	@property
-	def start_midi(self):
-		return int(self._midi_ticks_per_beat * (self.time / TICKS_PER_BEAT))
-
-	@start_midi.setter
-	def start_midi(self, val):
-		self.time = int(TICKS_PER_BEAT * (val / self._midi_ticks_per_beat))
-
-	@property
 	def end_midi(self):
 		return int(self._midi_ticks_per_beat * (self.end / TICKS_PER_BEAT))
 
 	@end_midi.setter
 	def end_midi(self, val):
 		self.duration = int(TICKS_PER_BEAT * (val / self._midi_ticks_per_beat))
+
+
+class ChangeTempo(Token):
+	tempo: int
+
+	def __init__(self, tempo: int, **kwargs):
+		super().__init__(**kwargs)
+		self.tempo = tempo
+
+	def __str__(self):
+		beats, ticks = self.time_index()
+		tempo = self.tempo
+		return f"TEMPO {beats} {ticks} {tempo}"
+
+
+TimeSignature = tuple[int, int]
+
+
+def is_accepted_time_signature(time_signature: TimeSignature):
+	num, den = time_signature
+	if num == den == 4:
+		return True
+	if num == 3 and den == 4:
+		return True
+	if num == 6 and den == 8:
+		return True
+	return False
+
+
+def time_signature_string(time_signature: TimeSignature):
+	num, den = time_signature
+	if num == den == 4:
+		return "TS.4.4"
+	if num == 3 and den == 4:
+		return "TS.3.4"
+	if num == 6 and den == 8:
+		return "TS.6.8"
+	raise ValueError("Invalid time signature")
+
+
+class ChangeTimeSignature(Token):
+	time_signature: TimeSignature
+
+	def __init__(self, time_signature: TimeSignature = None, **kwargs):
+		super().__init__(**kwargs)
+		self.time_signature = time_signature
+
+	def __str__(self):
+		beats, ticks = self.time_index()
+		ts = time_signature_string(self.time_signature)
+		return f"TIMESIG {beats} {ticks} {ts}"
+
+
+class EndOfSong(Token):
+	def __str__(self):
+		beats, ticks = self.time_index()
+		return f"EOS {beats} {ticks}"

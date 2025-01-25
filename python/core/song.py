@@ -1,6 +1,6 @@
 import mido
 
-from .token import Token, Note
+from .token import Token, Note, ChangeTimeSignature, ChangeTempo
 
 def song_event_to_mido_message(event):
 	delta_time = event[0]
@@ -9,6 +9,12 @@ def song_event_to_mido_message(event):
 		return mido.Message('note_on', note=event[2], velocity=64, time=delta_time)
 	elif message_type == 'note_off':
 		return mido.Message('note_off', note=event[2], velocity=64, time=delta_time)
+	elif message_type == 'time_signature':
+		return mido.MetaMessage('time_signature', numerator=event[2], denominator=event[3], time=delta_time)
+	elif message_type == 'set_tempo':
+		tempo = mido.bpm2tempo(event[2])
+		print(tempo)
+		return mido.MetaMessage('set_tempo', tempo=tempo, time=delta_time)
 	else:
 		raise ValueError("Invalid message type")
 
@@ -26,6 +32,10 @@ class Song:
 			if isinstance(token, Note):
 				yield token.start_midi, "note_on", token.pitch
 				yield token.end_midi, "note_off", token.pitch
+			elif isinstance(token, ChangeTimeSignature):
+				yield token.start_midi, "time_signature", *token.time_signature
+			elif isinstance(token, ChangeTempo):
+				yield token.start_midi, "set_tempo", token.tempo
 	
 	def _sorted_message_tuples(self):
 		return sorted(self._message_tuples())

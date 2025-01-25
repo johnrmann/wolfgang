@@ -1,6 +1,7 @@
 import mido
 
-from .token import Token, Note
+from .token import Token, Note, time_signature_string, is_accepted_time_signature, ChangeTempo, ChangeTimeSignature
+from .utils import microseconds_per_quarter_to_bpm
 
 class MidiTokenizer:
 	_ticks: int = 0
@@ -61,6 +62,22 @@ class MidiTokenizer:
 		self._last_notes[pitch] = new_note
 		self._tokens.append(new_note)
 		del self._open_pitches[pitch]
+	
+	def time_signature(self, time_signature: tuple[int, int], ticks: int = None, delta_ticks: int = None):
+		ticks = self.advance_time(ticks, delta_ticks)
+		self._tokens.append(ChangeTimeSignature(
+			time_signature=time_signature,
+			midi_ticks=ticks,
+			midi_ticks_per_beat=self._midi_ticks_per_beat
+		))
+
+	def tempo(self, tempo: int = 120, ticks: int = None, delta_ticks: int = None):
+		ticks = self.advance_time(ticks, delta_ticks)
+		self._tokens.append(ChangeTempo(
+			tempo=tempo,
+			midi_ticks=ticks,
+			midi_ticks_per_beat=self._midi_ticks_per_beat
+		))
 
 	@property
 	def tokens(self):
@@ -82,5 +99,20 @@ def read_midi_file(file_path: str) -> list[Token]:
 				tokenizer.note_on(msg.note, delta_ticks=msg.time)
 			elif msg.type == 'note_off':
 				tokenizer.note_off(msg.note, delta_ticks=msg.time)
+			elif msg.type == 'time_signature':
+				timesig = msg.numerator, msg.denominator
+				if is_accepted_time_signature(timesig):
+					tokenizer.time_signature(
+						time_signature=timesig,
+						delta_ticks=msg.time,
+					)
+				else:
+					return None
+			elif msg.type == 'set_tempo':
+				tempo = int(mido.tempo2bpm(msg.tempo))
+				tokenizer.tempo(
+					tempo=tempo,
+					delta_ticks=msg.time,
+				)
 
 	return tokenizer.tokens
