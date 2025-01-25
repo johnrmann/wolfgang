@@ -8,3 +8,6 @@ TICKS_PER_BEAT = 12
 
 # MIDI files have 480 ticks per quarter note, whereas Wolfgang has 12.
 MIDI_TICKS_PER_WOLFGANG_TICK = 40
+
+# The number of MIDI ticks per quarter note.
+MIDI_TICKS_PER_BEAT = 480
