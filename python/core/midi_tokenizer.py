@@ -75,11 +75,9 @@ def read_midi_file(file_path: str) -> list[Token]:
 	num_tracks = len(midi.tracks)
 	if num_tracks == 0:
 		raise ValueError("No tracks in MIDI file")
-	print(num_tracks, "tracks")
 	
 	for idx, track in enumerate(midi.tracks):
 		for msg in track:
-			print(msg)
 			if msg.type == 'note_on':
 				tokenizer.note_on(msg.note, delta_ticks=msg.time)
 			elif msg.type == 'note_off':

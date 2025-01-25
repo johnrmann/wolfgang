@@ -62,6 +62,14 @@ class Note(Token):
 		duration = self.duration
 		pitch = self.pitch
 		return f"NOTE {beats} {ticks} {duration} {pitch}"
+	
+	@property
+	def start(self):
+		return self.time
+	
+	@start.setter
+	def start(self, value):
+		self.time = value
 
 	@property
 	def end(self):
@@ -70,6 +78,14 @@ class Note(Token):
 	@end.setter
 	def end(self, value):
 		self.duration = value - self.time
+
+	@property
+	def start_midi(self):
+		return int(self._midi_ticks_per_beat * (self.time / TICKS_PER_BEAT))
+
+	@start_midi.setter
+	def start_midi(self, val):
+		self.time = int(TICKS_PER_BEAT * (val / self._midi_ticks_per_beat))
 
 	@property
 	def end_midi(self):
