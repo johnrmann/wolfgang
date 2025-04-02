@@ -27,6 +27,9 @@ if __name__ == '__main__':
 				if file.endswith('.mid'):
 					new_file = file.replace('.mid', '.tok')
 					new_out_path = os.path.join(out_path, new_file)
-					transform_midi_file(os.path.join(root, file), new_out_path)
+					try:
+						transform_midi_file(os.path.join(root, file), new_out_path)
+					except Exception as e:
+						print(f"Error processing {file}: {e}")
 	else:
 		transform_midi_file(in_path, out_path)
