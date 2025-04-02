@@ -59,8 +59,9 @@ class MidiTokenizer:
 			midi_ticks=on_ticks,
 			midi_ticks_per_beat=self._midi_ticks_per_beat
 		)
-		self._last_notes[pitch] = new_note
-		self._tokens.append(new_note)
+		if duration != 0:
+			self._last_notes[pitch] = new_note
+			self._tokens.append(new_note)
 		del self._open_pitches[pitch]
 	
 	def time_signature(self, time_signature: tuple[int, int], ticks: int = None, delta_ticks: int = None):
@@ -96,7 +97,12 @@ def read_midi_file(file_path: str) -> list[Token]:
 	for idx, track in enumerate(midi.tracks):
 		for msg in track:
 			if msg.type == 'note_on':
-				tokenizer.note_on(msg.note, delta_ticks=msg.time)
+				# Check the velocity of the note. If it's 0, then it's a
+				# note off.
+				if msg.velocity == 0:
+					tokenizer.note_off(msg.note, delta_ticks=msg.time)
+				else:
+					tokenizer.note_on(msg.note, delta_ticks=msg.time)
 			elif msg.type == 'note_off':
 				tokenizer.note_off(msg.note, delta_ticks=msg.time)
 			elif msg.type == 'time_signature':
