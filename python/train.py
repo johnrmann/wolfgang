@@ -7,6 +7,8 @@ import os
 import re
 import argparse
 
+from model.dataset import MidiTokenDataset
+
 # Configuration
 parser = argparse.ArgumentParser(
 	description="Train a Hybrid CNN-Transformer model on MIDI token data."
@@ -35,32 +37,6 @@ TRANSFORMER_LAYERS = 4
 CNN_CHANNELS = 64
 EPOCHS = 5
 
-# Simple Tokenizer and Dataset class
-class MidiTokenDataset(Dataset):
-	def __init__(self, data_path):
-		self.files = sorted(glob.glob(os.path.join(data_path, '*.tok')))
-		self.tokens = []
-		for f in self.files:
-			with open(f, 'r') as file:
-				content = file.read()
-				lines = content.split('\n')
-				for line in lines:
-					self.tokens.extend(line.strip().split())
-		
-		self.vocab = sorted(set(self.tokens))
-		self.token_to_id = {t: i for i, t in enumerate(self.vocab)}
-		self.id_to_token = {i: t for i, t in enumerate(self.vocab)}
-		
-		self.encoded = [self.token_to_id[t] for t in self.tokens]
-
-	def __len__(self):
-		return len(self.tokens) - SEQ_LENGTH
-
-	def __getitem__(self, idx):
-		x = torch.tensor(self.encoded[idx:idx+SEQ_LENGTH])
-		y = torch.tensor(self.encoded[idx+1:idx+SEQ_LENGTH+1])
-		return x, y
-
 # Hybrid CNN-Transformer Model
 class HybridModel(nn.Module):
 	def __init__(self, vocab_size, embed_size, cnn_channels, seq_length, n_heads, n_layers):
@@ -83,7 +59,7 @@ class HybridModel(nn.Module):
 
 # Data
 print("Loading data...")
-dataset = MidiTokenDataset(DATA_PATH)
+dataset = MidiTokenDataset(args.data_path, SEQ_LENGTH)
 vocab_size = len(dataset.vocab)
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 

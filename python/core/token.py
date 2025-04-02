@@ -1,4 +1,4 @@
-from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT
+from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, TokenType
 
 class Token:
 	time: int
@@ -155,5 +155,5 @@ class ChangeTimeSignature(Token):
 
 class EndOfSong(Token):
 	def __str__(self):
-		beats, ticks = self.time_index()
-		return f"EOS {beats} {ticks}"
+		control = TokenType.END.value
+		return f"{control}"

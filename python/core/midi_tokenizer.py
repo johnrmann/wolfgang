@@ -1,6 +1,6 @@
 import mido
 
-from .token import Token, Note, time_signature_string, is_accepted_time_signature, ChangeTempo, ChangeTimeSignature
+from .token import Token, Note, time_signature_string, is_accepted_time_signature, ChangeTempo, ChangeTimeSignature, EndOfSong
 from .utils import microseconds_per_quarter_to_bpm
 
 class MidiTokenizer:
@@ -80,6 +80,10 @@ class MidiTokenizer:
 			midi_ticks_per_beat=self._midi_ticks_per_beat
 		))
 
+	def end(self, ticks: int = None, delta_ticks: int = None):
+		ticks = self.advance_time(ticks, delta_ticks)
+		self._tokens.append(EndOfSong(midi_ticks=ticks))
+
 	@property
 	def tokens(self):
 		return self._tokens
@@ -120,5 +124,7 @@ def read_midi_file(file_path: str) -> list[Token]:
 					tempo=tempo,
 					delta_ticks=msg.time,
 				)
+	
+	tokenizer.end(delta_ticks=0)
 
 	return tokenizer.tokens

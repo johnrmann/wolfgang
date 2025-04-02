@@ -1,7 +1,9 @@
 import torch
 import argparse
 
-from train import HybridModel, MidiTokenDataset, DEVICE, SEQ_LENGTH, EMBED_SIZE, CNN_CHANNELS, N_HEADS, TRANSFORMER_LAYERS
+from train import HybridModel, DEVICE, SEQ_LENGTH, EMBED_SIZE, CNN_CHANNELS, N_HEADS, TRANSFORMER_LAYERS
+
+from model.dataset import MidiTokenDataset
 
 # Configuration
 parser = argparse.ArgumentParser(
@@ -23,7 +25,7 @@ args = parser.parse_args()
 
 # Load dataset for vocab
 print("Loading dataset and vocab...")
-dataset = MidiTokenDataset(args.data_path)
+dataset = MidiTokenDataset(args.data_path, SEQ_LENGTH)
 token2id = dataset.token_to_id
 id2token = dataset.id_to_token
 vocab_size = len(dataset.vocab)
@@ -41,7 +43,7 @@ sequence = [token2id[t] for t in seed_tokens]
 
 # Pad to SEQ_LENGTH if needed
 if len(sequence) < SEQ_LENGTH:
-	pad_token = token2id["NOTE"]  # arbitrary filler token
+	pad_token = token2id["PAD"]  # arbitrary filler token
 	sequence = [pad_token] * (SEQ_LENGTH - len(sequence)) + sequence
 
 # Generate tokens
