@@ -8,6 +8,7 @@ import re
 import argparse
 
 from model.dataset import MidiTokenDataset
+from model.loss import sequence_order_penalty
 
 # Configuration
 parser = argparse.ArgumentParser(
@@ -77,7 +78,9 @@ if __name__ == '__main__':
 			x, y = x.to(DEVICE), y.to(DEVICE)
 			optimizer.zero_grad()
 			output = model(x)
-			loss = criterion(output.view(-1, vocab_size), y.view(-1))
+			cr_loss = criterion(output.view(-1, vocab_size), y.view(-1))
+			penalty = sequence_order_penalty(y, dataset.id_to_token)
+			loss = cr_loss + (1.0 * penalty)
 			loss.backward()
 			optimizer.step()
 			total_loss += loss.item()
