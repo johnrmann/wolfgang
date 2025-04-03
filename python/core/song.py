@@ -1,7 +1,7 @@
 import mido
 
 from .token import Token, Note, Step, ChangeTimeSignature, ChangeTempo, EndOfSong, merge_adjacent_steps
-from core.constants import TokenType, TICKS_PER_BEAT
+from core.constants import MessageType, TICKS_PER_BEAT
 from core.utils import read_prefixed_int
 
 def song_event_to_mido_message(event):
@@ -41,9 +41,9 @@ class Song:
 		i = 0
 		while i < len(texts):
 			text = texts[i]
-			if text == TokenType.PAD.value:
+			if text == MessageType.PAD.value:
 				i += 1
-			elif text == TokenType.STEP.value:
+			elif text == MessageType.STEP.value:
 				if i + 2 >= len(texts):
 					break
 				steps = read_prefixed_int(texts[i+1], 'B')
@@ -52,24 +52,24 @@ class Song:
 					break
 				token_list.append(Step(ticks=(steps * 12 + ticks)))
 				i += 3
-			elif text == TokenType.NOTE.value:
+			elif text == MessageType.NOTE.value:
 				if i + 3 >= len(texts):
 					break
 				note = Note.from_text(texts[i+1 : i+3])
 				if note:
 					token_list.append(note)
 				i += 3
-			elif text == TokenType.TIMESIG.value:
+			elif text == MessageType.TIMESIG.value:
 				# For now, just assume everything is 4/4
 				token_list.append(ChangeTimeSignature(time_signature=(4, 4)))
 				i += 2
-			elif text == TokenType.TEMPO.value:
+			elif text == MessageType.TEMPO.value:
 				tempo = read_prefixed_int(texts[i+1], 'BPM')
 				if tempo is None:
 					tempo = 120
 				token_list.append(ChangeTempo(tempo))
 				i += 2
-			elif text == TokenType.END.value:
+			elif text == MessageType.END.value:
 				i += 1
 				token_list.append(EndOfSong())
 				break

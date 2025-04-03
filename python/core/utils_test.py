@@ -2,6 +2,7 @@ from core.utils import (
 	microseconds_per_quarter_to_bpm,
 	read_prefixed_int,
 	find_prefixed_int,
+	count_payload,
 )
 
 def test__microseconds_per_quarter_to_bpm():
@@ -27,3 +28,18 @@ def test__find_prefixed_int():
 	assert find_prefixed_int(tokens, "B") == 8
 	assert find_prefixed_int(tokens, "C") == 15
 	assert find_prefixed_int(tokens, "D") == 16
+
+
+def test__count_payload__partial():
+	tokens = ["A4", "B8", "C15", "D16", "PAD", "E23", "F42"]
+	assert count_payload(tokens) == 4
+
+
+def test__count_payload__empty():
+	tokens = ["PAD", "PAD", "PAD"]
+	assert count_payload(tokens) == 0
+
+
+def test__count_payload__full():
+	tokens = ["A4", "B8", "C15", "D16"]
+	assert count_payload(tokens) == 4

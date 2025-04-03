@@ -1,3 +1,5 @@
+from core.constants import MessageType
+
 def microseconds_per_quarter_to_bpm(microseconds_per_quarter: int) -> float:
 	return 60_000_000 / microseconds_per_quarter
 
@@ -23,3 +25,17 @@ def find_prefixed_int(tokens: list[str], prefix: str):
 		if token.startswith(prefix):
 			return read_prefixed_int(token, prefix)
 	return None
+
+
+def count_payload(tokens: list[str]):
+	"""
+	Given a list of tokens, count the number of consecutive tokens that are not
+	a token type.
+	"""
+	count = 0
+	tok_types = [v.value for v in MessageType]
+	while count < len(tokens):
+		if tokens[count] in tok_types:
+			break
+		count += 1
+	return count

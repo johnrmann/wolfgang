@@ -4,7 +4,7 @@ Constants used throughout the project.
 
 from enum import Enum
 
-class TokenType(Enum):
+class MessageType(Enum):
 	"""
 	An enumeration of the different types of tokens that can be found in a
 	song.
@@ -15,6 +15,22 @@ class TokenType(Enum):
 	TEMPO = 'TEMPO'
 	TIMESIG = 'TIMESIG'
 	END = 'END'
+
+TOKEN_TYPE_TO_PAYLOAD_LENGTH = {
+	MessageType.PAD: 0,
+	MessageType.STEP: 2,
+	MessageType.NOTE: 2,
+	MessageType.TEMPO: 1,
+	MessageType.TIMESIG: 1,
+	MessageType.END: 0,
+
+	MessageType.PAD.value: 0,
+	MessageType.STEP.value: 2,
+	MessageType.NOTE.value: 2,
+	MessageType.TEMPO.value: 1,
+	MessageType.TIMESIG.value: 1,
+	MessageType.END.value: 0,
+}
 
 class TimeSignature(Enum):
 	"""

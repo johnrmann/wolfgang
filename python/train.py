@@ -14,6 +14,7 @@ from model.dataset import MidiTokenDataset
 from model.loss import (
 	zero_length_penalty,
 	consecutive_steps_penalty,
+	malformed_penalty,
 )
 from model.model import HybridModel
 
@@ -58,10 +59,6 @@ if __name__ == '__main__':
 			output = model(x)
 			cr_loss = criterion(output.view(-1, vocab_size), y.view(-1))
 			loss = cr_loss
-			pen1 = zero_length_penalty(y, dataset.id_to_token)
-			pen2 = consecutive_steps_penalty(y, dataset.id_to_token)
-			pen = pen1 + pen2
-			loss = cr_loss + (1.0 * pen)
 			loss.backward()
 			optimizer.step()
 			total_loss += loss.item()

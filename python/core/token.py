@@ -1,4 +1,4 @@
-from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, TokenType
+from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, MessageType
 
 from core.utils import (
 	find_prefixed_int,
@@ -155,5 +155,5 @@ class ChangeTimeSignature(Token):
 
 class EndOfSong(Token):
 	def __str__(self):
-		control = TokenType.END.value
+		control = MessageType.END.value
 		return f"{control}"
