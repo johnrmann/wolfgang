@@ -1,53 +1,53 @@
 from core.constants import TICKS_PER_BEAT
+from core.utils import read_prefixed_int
 
-# Custom loss function with order constraint (augmenting default CE loss)
-def sequence_order_penalty(target, id2token):
+def consecutive_steps_penalty(target, id2token):
 	batch_size, seq_len = target.shape
 	penalty = 0.0
 	for b in range(batch_size):
 		tokens = [id2token[int(i)] for i in target[b]]
-		note_times = []
+		violations = 0
 		i = 0
 		while i < len(tokens):
-			if tokens[i] == 'NOTE' and i + 4 < len(tokens):
-				try:
-					beat = int(tokens[i+1])
-					tick = int(tokens[i+2])
-					time = beat * TICKS_PER_BEAT + tick
-					note_times.append(time)
-				except ValueError:
-					pass
-				i += 5
-			else:
+			if tokens[i] != 'STEP':
 				i += 1
-		for j in range(1, len(note_times)):
-			if note_times[j] < note_times[j-1]:
-				penalty += (note_times[j-1] - note_times[j]) ** 2 
+				continue
+			while tokens[i] == 'STEP' and i < len(tokens):
+				i += 3
+				violations += 1
+				if i >= len(tokens):
+					break
+			violations -= 1
+		penalty += violations ** 2
+	return penalty / batch_size
 
-	return penalty / batch_size  # average over batch
 
-def excessive_gap_penalty(target, id2token, penalty_beats=6):
+def zero_length_penalty(target, id2token):
 	batch_size, seq_len = target.shape
 	penalty = 0.0
-	penalty_ticks = penalty_beats * TICKS_PER_BEAT
 	for b in range(batch_size):
 		tokens = [id2token[int(i)] for i in target[b]]
-		note_times = []
+		violations = 0
 		i = 0
 		while i < len(tokens):
-			if tokens[i] == 'NOTE' and i + 4 < len(tokens):
+			if tokens[i] == 'NOTE' and i + 2 < len(tokens):
 				try:
-					beat = int(tokens[i+1])
-					tick = int(tokens[i+2])
-					time = beat * TICKS_PER_BEAT + tick
-					note_times.append(time)
+					duration = read_prefixed_int(tokens[i+1], 'D')
+					if duration == 0:
+						violations += 1
 				except ValueError:
 					pass
-				i += 5
+				i += 3
+			elif tokens[i] == 'STEP' and i + 2 < len(tokens):
+				try:
+					beat = read_prefixed_int(tokens[i+1], 'B')
+					tick = read_prefixed_int(tokens[i+2], 'T')
+					if beat == 0 and tick == 0:
+						violations += 1
+				except ValueError:
+					pass
+				i += 3
 			else:
 				i += 1
-		for j in range(1, len(note_times)):
-			gap = note_times[j] - note_times[j-1]
-			if gap > penalty_ticks:
-				penalty += (gap - penalty_ticks) ** 2
+		penalty += violations ** 2
 	return penalty / batch_size

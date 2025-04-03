@@ -11,7 +11,10 @@ from torch.utils.data import Dataset, DataLoader
 
 from model.constants import BATCH_SIZE, EPOCHS, DEVICE
 from model.dataset import MidiTokenDataset
-from model.loss import sequence_order_penalty, excessive_gap_penalty
+from model.loss import (
+	zero_length_penalty,
+	consecutive_steps_penalty,
+)
 from model.model import HybridModel
 
 # Configuration
@@ -46,7 +49,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 # Training Loop
 if __name__ == '__main__':
 	print("Training...")
-	for epoch in tqdm(range(1)):
+	for epoch in tqdm(range(EPOCHS)):
 		total_loss = 0
 		inner_count = tqdm(total=len(dataloader), desc=f"Epoch {epoch+1}/{EPOCHS}")
 		for x, y in dataloader:
@@ -55,10 +58,10 @@ if __name__ == '__main__':
 			output = model(x)
 			cr_loss = criterion(output.view(-1, vocab_size), y.view(-1))
 			loss = cr_loss
-			# if epoch == EPOCHS - 1:
-			# 	ord_penalty = sequence_order_penalty(y, dataset.id_to_token)
-			# 	gap_penalty = excessive_gap_penalty(y, dataset.id_to_token)
-			# 	loss = cr_loss + (1.0 * (ord_penalty + gap_penalty))
+			pen1 = zero_length_penalty(y, dataset.id_to_token)
+			pen2 = consecutive_steps_penalty(y, dataset.id_to_token)
+			pen = pen1 + pen2
+			loss = cr_loss + (1.0 * pen)
 			loss.backward()
 			optimizer.step()
 			total_loss += loss.item()
