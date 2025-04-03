@@ -1,6 +1,7 @@
 import mido
 
-from .token import Token, Note, ChangeTimeSignature, ChangeTempo
+from .token import Token, Note, ChangeTimeSignature, ChangeTempo, EndOfSong
+from core.constants import TokenType
 
 def song_event_to_mido_message(event):
 	delta_time = event[0]
@@ -26,6 +27,40 @@ class Song:
 		if tokens is None:
 			tokens = []
 		self._tokens = tokens[:]
+
+	@staticmethod
+	def from_text(texts: list[str]):
+		token_list = []
+		i = 0
+		while i < len(texts):
+			text = texts[i]
+			if text == TokenType.PAD.value:
+				i += 1
+			elif text == TokenType.NOTE.value:
+				if i + 4 >= len(texts):
+					break
+				beat = texts[i + 1]
+				tick = texts[i + 2]
+				duration = texts[i + 3]
+				pitch = texts[i + 4]
+				note = Note.from_text(beat, tick, duration, pitch)
+				if note:
+					token_list.append(note)
+				i += 5
+			elif text == TokenType.TIMESIG.value:
+				# For now, just assume everything is 4/4
+				token_list.append(ChangeTimeSignature(time_signature=(4, 4), ticks=0))
+				i += 4
+			elif text == TokenType.TEMPO.value:
+				tempo = int(texts[i + 3])
+				token_list.append(ChangeTempo(tempo, ticks=0))
+				i += 4
+			elif text == TokenType.END.value:
+				i += 1
+				token_list.append(EndOfSong())
+				break
+		token_list = sorted(token_list)
+		return Song(token_list)
 
 	def _message_tuples(self):
 		for token in self._tokens:

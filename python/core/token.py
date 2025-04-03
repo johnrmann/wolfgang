@@ -65,6 +65,19 @@ class Note(Token):
 		else:
 			self.duration = duration
 
+	@staticmethod
+	def from_text(beat: str, tick: str, duration: str, pitch: str):
+		beat = int(beat)
+		tick = int(tick)
+		duration = int(duration)
+		pitch = int(pitch)
+		ticks = (beat * TICKS_PER_BEAT) + tick
+		return Note(
+			pitch=pitch,
+			duration=duration,
+			ticks=ticks,
+		)
+
 	def __lt__(self, other):
 		if self.time == other.time:
 			if isinstance(other, Note):

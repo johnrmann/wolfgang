@@ -2,6 +2,7 @@ import torch
 import argparse
 
 from model.dataset import MidiTokenDataset
+from core.song import Song
 from model.model import HybridModel
 from model.constants import SEQ_LENGTH, DEVICE
 
@@ -21,6 +22,12 @@ parser.add_argument(
 	required=True,
 	help="Path to save the trained model."
 )
+parser.add_argument(
+	'--out',
+	type=str,
+	required=False,
+	help="Path to save the generated MIDI file."
+)
 args = parser.parse_args()
 
 # Load dataset for vocab
@@ -38,7 +45,13 @@ model.to(DEVICE)
 model.eval()
 
 # Starting seed: TEMPO 0 0 120, NOTE 0 0 1 60
-seed_tokens = ["TIMESIG", "0", "0", "TS.4.4", "TEMPO", "0", "0", "120", "NOTE", "0", "0", "1", "60"]
+seed_tokens = [
+	"TIMESIG", "0", "0", "TS.4.4",
+	"TEMPO", "0", "0", "120",
+	"NOTE", "0", "0", "1", "60",
+	"NOTE", "1", "0", "1", "62",
+	"NOTE", "2", "0", "1", "64",
+]
 sequence = [token2id[t] for t in seed_tokens]
 
 # Pad to SEQ_LENGTH if needed
@@ -48,7 +61,7 @@ if len(sequence) < SEQ_LENGTH:
 
 # Generate tokens
 generated = sequence.copy()
-num_tokens_to_generate = 200
+num_tokens_to_generate = 512
 print("Generating...")
 
 for _ in range(num_tokens_to_generate):
@@ -63,3 +76,10 @@ for _ in range(num_tokens_to_generate):
 generated_tokens = [id2token[i] for i in generated]
 print("\nGenerated token sequence:\n")
 print(" ".join(generated_tokens))
+
+# Now, create a song.
+if args.out:
+	song = Song.from_text(generated_tokens)
+	midi = song.to_midi()
+	midi.save(args.out)
+	print(f"\nSaved generated MIDI file to {args.out}")
