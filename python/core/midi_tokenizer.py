@@ -2,7 +2,7 @@ import mido
 
 from collections import defaultdict
 
-from .token import Token, Note, Step, time_signature_string, is_accepted_time_signature, ChangeTempo, ChangeTimeSignature, EndOfSong
+from .token import Token, Note, Step, merge_adjacent_steps, is_accepted_time_signature, ChangeTempo, ChangeTimeSignature, EndOfSong
 from .utils import microseconds_per_quarter_to_bpm
 
 from core.constants import TICKS_PER_BEAT
@@ -109,4 +109,4 @@ def read_midi_file(file_path: str) -> list[Token]:
 	
 	tokenizer.end(delta_midi=0)
 
-	return tokenizer.tokens
+	return merge_adjacent_steps(tokenizer.tokens)

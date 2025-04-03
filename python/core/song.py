@@ -1,6 +1,6 @@
 import mido
 
-from .token import Token, Note, Step, ChangeTimeSignature, ChangeTempo, EndOfSong
+from .token import Token, Note, Step, ChangeTimeSignature, ChangeTempo, EndOfSong, merge_adjacent_steps
 from core.constants import TokenType, TICKS_PER_BEAT
 from core.utils import read_prefixed_int
 
@@ -75,7 +75,7 @@ class Song:
 				break
 			else:
 				i += 1
-		return Song(token_list)
+		return Song(merge_adjacent_steps(token_list))
 
 	def _message_tuples(self):
 		time = 0

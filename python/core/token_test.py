@@ -1,4 +1,4 @@
-from .token import Step, Note, EndOfSong, ChangeTempo, ChangeTimeSignature
+from .token import Step, Note, EndOfSong, ChangeTempo, ChangeTimeSignature, merge_adjacent_steps
 
 def test__step__sets_ticks():
 	token = Step(ticks=1)
@@ -78,3 +78,18 @@ def test__time_signature__str():
 def test__end_of_song__str():
 	end = EndOfSong()
 	assert str(end) == "END"
+
+
+def test__merge_adjacent_steps():
+	token_list = [
+		Step(0),
+		Step(12),
+		Step(24),
+	]
+	assert len(token_list) == 3
+	assert token_list[0].ticks == 0
+	assert token_list[1].ticks == 12
+	assert token_list[2].ticks == 24
+	merged = merge_adjacent_steps(token_list)
+	assert len(merged) == 1
+	assert merged[0].ticks == 36

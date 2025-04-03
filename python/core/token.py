@@ -3,7 +3,7 @@ from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, TokenType
 from core.utils import (
 	find_prefixed_int,
 	read_prefixed_int,
-)
+)	
 
 
 class Token:
@@ -33,6 +33,11 @@ class Step(Token):
 		else:
 			raise ValueError("ticks XOR midi_ticks must be provided")
 
+	def __add__(self, other):
+		if isinstance(other, Step):
+			return Step(ticks=self.ticks + other.ticks)
+		raise ValueError("Cannot add Step to non-Step object")
+
 	def __str__(self):
 		beats, ticks = self.time_index()
 		return f"STEP B{beats} T{ticks}"
@@ -41,6 +46,23 @@ class Step(Token):
 		beats = self.ticks // TICKS_PER_BEAT
 		ticks = self.ticks % TICKS_PER_BEAT
 		return beats, ticks
+
+
+def merge_adjacent_steps(tokens: list[Token]):
+	"""
+	Given a list of tokens, merge adjacent Step tokens into one.
+	"""
+	new_tokens = []
+	for token in tokens:
+		if len(new_tokens) == 0:
+			new_tokens.append(token)
+			continue
+		prev_token = new_tokens[-1]
+		if isinstance(prev_token, Step) and isinstance(token, Step):
+			prev_token.ticks += token.ticks
+		else:
+			new_tokens.append(token)
+	return new_tokens
 
 
 class Note(Token):

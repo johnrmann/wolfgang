@@ -2,7 +2,7 @@ import os
 import sys
 
 from core.midi_tokenizer import read_midi_file
-from core.token import Note
+from core.token import Note, merge_adjacent_steps
 
 def transform_midi_file(in_path: str, out_path: str | None = None):
 	tokens = read_midi_file(in_path)
