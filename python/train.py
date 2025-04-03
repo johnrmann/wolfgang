@@ -30,12 +30,12 @@ args = parser.parse_args()
 
 DATA_PATH = args.data_path
 DEVICE = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
-SEQ_LENGTH = 128
+SEQ_LENGTH = 32
 BATCH_SIZE = 16
-EMBED_SIZE = 128
-N_HEADS = 4
-TRANSFORMER_LAYERS = 4
-CNN_CHANNELS = 64
+EMBED_SIZE = 96
+N_HEADS = 2
+TRANSFORMER_LAYERS = 2
+CNN_CHANNELS = 32
 EPOCHS = 5
 
 # Hybrid CNN-Transformer Model
@@ -74,13 +74,21 @@ if __name__ == '__main__':
 	print("Training...")
 	for epoch in range(EPOCHS):
 		total_loss = 0
+		i = 0
+		print(f"Training {len(dataloader)} batches")
 		for x, y in dataloader:
+			i += 1
+			if i == 1000:
+				print("Batch 1000")
+				i = 0
 			x, y = x.to(DEVICE), y.to(DEVICE)
 			optimizer.zero_grad()
 			output = model(x)
 			cr_loss = criterion(output.view(-1, vocab_size), y.view(-1))
-			penalty = sequence_order_penalty(y, dataset.id_to_token)
-			loss = cr_loss + (1.0 * penalty)
+			loss = cr_loss
+			if epoch == EPOCHS - 1:
+				penalty = sequence_order_penalty(y, dataset.id_to_token)
+				loss = cr_loss + (1.0 * penalty)
 			loss.backward()
 			optimizer.step()
 			total_loss += loss.item()

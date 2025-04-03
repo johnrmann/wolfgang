@@ -2,6 +2,7 @@ import os
 import sys
 
 from core.midi_tokenizer import read_midi_file
+from core.token import Note
 
 def transform_midi_file(in_path: str, out_path: str | None = None):
 	tokens = read_midi_file(in_path)
@@ -11,6 +12,8 @@ def transform_midi_file(in_path: str, out_path: str | None = None):
 	else:
 		with open(out_path, 'w') as f:
 			for token in tokens:
+				if isinstance(token, Note) and token.duration == 0:
+					continue
 				f.write(str(token) + '\n')
 			print("Wrote output to", out_path)
 
