@@ -1,28 +1,38 @@
-from .token import Token, Note
+from .token import Step, Note, EndOfSong, ChangeTempo, ChangeTimeSignature
 
-def test__token__sets_ticks():
-	token = Token(ticks=1)
-	assert token.time == 1
-
-
-def test__token__sets_midi_ticks():
-	token = Token(midi_ticks=480)
-	assert token.time == 12
+def test__step__sets_ticks():
+	token = Step(ticks=1)
+	assert token.ticks == 1
 
 
-def test__token__time_index_1():
-	token = Token(0)
+def test__step__sets_midi_ticks():
+	token = Step(midi_ticks=480)
+	assert token.ticks == 12
+
+
+def test__step__time_index_1():
+	token = Step(0)
 	assert token.time_index() == (0, 0)
 
 
-def test__token__time_index_2():
-	token = Token(13)
+def test__step__time_index_2():
+	token = Step(13)
 	assert token.time_index() == (1, 1)
 
 
-def test__token__errors_no_time():
+def test__step__string():
+	token = Step(0)
+	assert str(token) == "STEP B0 T0"
+
+
+def test__step__string_2():
+	token = Step(13)
+	assert str(token) == "STEP B1 T1"
+
+
+def test__step__errors_no_time():
 	try:
-		Token()
+		Step()
 		assert False
 	except ValueError:
 		assert True
@@ -32,96 +42,39 @@ def test__note__init():
 	note = Note(
 		pitch=60,
 		duration=12,
-		ticks=0,
 	)
 	assert note.pitch == 60
 	assert note.duration == 12
-	assert note.time == 0
 
 
 def test__note__str():
 	note = Note(
 		pitch=60,
 		duration=12,
-		ticks=0,
 	)
-	assert str(note) == "NOTE 0 0 12 60"
+	assert str(note) == "NOTE D12 P60"
 
 
-def test__note__init__midi_duration():
-	note = Note(
-		pitch=60,
-		midi_duration=480,
-		ticks=0,
-	)
-	assert note.pitch == 60
-	assert note.duration == 12
-	assert note.time == 0
+def test__tempo__init():
+	tempo = ChangeTempo(144)
+	assert tempo.tempo == 144
 
 
-def test__note__init__midi_ticks_per_beat():
-	note = Note(
-		pitch=60,
-		midi_duration=350,
-		midi_ticks_per_beat=100,
-		midi_ticks=25,
-	)
-	assert note.pitch == 60
-	assert note.duration == 42
-	assert note.time == 3
-	assert note.time_index() == (0, 3)
+def test__tempo__str():
+	tempo = ChangeTempo(144)
+	assert str(tempo) == "TEMPO BPM144"
 
 
-def test__note__comparison__time():
-	note1 = Note(
-		pitch=60,
-		duration=12,
-		ticks=0,
-	)
-	note2 = Note(
-		pitch=60,
-		duration=12,
-		ticks=1,
-	)
-	assert note1 < note2
-	assert note2 > note1
+def test__time_signature__init():
+	time_signature = ChangeTimeSignature((4, 4))
+	assert time_signature.time_signature == (4, 4)
 
 
-def test__note__comparison__pitch():
-	note1 = Note(
-		pitch=60,
-		duration=12,
-		ticks=0,
-	)
-	note2 = Note(
-		pitch=61,
-		duration=12,
-		ticks=0,
-	)
-	assert note1 < note2
-	assert note2 > note1
+def test__time_signature__str():
+	time_signature = ChangeTimeSignature((6, 8))
+	assert str(time_signature) == "TIMESIG TS.6.8"
 
 
-def test__note__extends_via_end():
-	note = Note(
-		pitch=60,
-		duration=6,
-		ticks=6,
-	)
-	assert note.end == 12
-	note.end = 18
-	assert note.duration == 12
-
-
-def test__note__extends_via_end_midi():
-	note = Note(
-		pitch=60,
-		midi_duration=480,
-		ticks=0,
-		midi_ticks_per_beat=480,
-	)
-	assert note.end_midi == 480
-	note.end_midi = 960
-	assert note.duration == 24
-	assert note.end == 24
-	assert note.end_midi == 960
+def test__end_of_song__str():
+	end = EndOfSong()
+	assert str(end) == "END"

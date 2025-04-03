@@ -34,8 +34,8 @@ class MidiTokenDataset(Dataset):
 		for i in range(0, 110):
 			vocab.append(f"P{i}")
 		# For now, add "120BPM" as the default time signature
-		vocab.append("120BPM")
-		vocab.append("124BPM")
+		vocab.append("BPM120")
+		vocab.append("BPM124")
 		self.vocab = sorted(set(vocab))
 		self.token_to_id = {t: i for i, t in enumerate(self.vocab)}
 		self.id_to_token = {i: t for i, t in enumerate(self.vocab)}

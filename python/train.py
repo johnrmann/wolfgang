@@ -46,7 +46,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 # Training Loop
 if __name__ == '__main__':
 	print("Training...")
-	for epoch in tqdm(range(EPOCHS)):
+	for epoch in tqdm(range(1)):
 		total_loss = 0
 		inner_count = tqdm(total=len(dataloader), desc=f"Epoch {epoch+1}/{EPOCHS}")
 		for x, y in dataloader:
@@ -55,10 +55,10 @@ if __name__ == '__main__':
 			output = model(x)
 			cr_loss = criterion(output.view(-1, vocab_size), y.view(-1))
 			loss = cr_loss
-			if epoch == EPOCHS - 1:
-				ord_penalty = sequence_order_penalty(y, dataset.id_to_token)
-				gap_penalty = excessive_gap_penalty(y, dataset.id_to_token)
-				loss = cr_loss + (1.0 * (ord_penalty + gap_penalty))
+			# if epoch == EPOCHS - 1:
+			# 	ord_penalty = sequence_order_penalty(y, dataset.id_to_token)
+			# 	gap_penalty = excessive_gap_penalty(y, dataset.id_to_token)
+			# 	loss = cr_loss + (1.0 * (ord_penalty + gap_penalty))
 			loss.backward()
 			optimizer.step()
 			total_loss += loss.item()

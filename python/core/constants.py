@@ -10,6 +10,7 @@ class TokenType(Enum):
 	song.
 	"""
 	PAD = 'PAD'
+	STEP = 'STEP'
 	NOTE = 'NOTE'
 	TEMPO = 'TEMPO'
 	TIMESIG = 'TIMESIG'

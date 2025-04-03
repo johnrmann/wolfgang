@@ -46,13 +46,18 @@ model.eval()
 
 # Starting seed: TEMPO 0 0 120, NOTE 0 0 1 60
 seed_tokens = [
-	"TIMESIG", "B0", "T0", "TS.4.4",
-	"TEMPO", "B0", "T0", "120BPM",
-	"NOTE", "B0", "T0", "D12", "P64",
-	"NOTE", "B1", "T0", "D12", "P64",
-	"NOTE", "B2", "T0", "D12", "P65",
-	"NOTE", "B3", "T0", "D12", "P67",
-	"NOTE", "B4", "T0", "D12", "P67",
+	"TIMESIG", "TS.4.4",
+	"TEMPO", "BPM120",
+	"NOTE", "D12", "P64",
+	"STEP", "B1", "T0",
+	"NOTE", "D12", "P64",
+	"STEP", "B1", "T0",
+	"NOTE", "D12", "P65",
+	"STEP", "B1", "T0",
+	"NOTE", "D12", "P67",
+	"STEP", "B1", "T0",
+	"NOTE", "D12", "P67",
+	"STEP", "B1", "T0",
 ]
 sequence = [token2id[t] for t in seed_tokens]
 
@@ -63,7 +68,7 @@ if len(sequence) < SEQ_LENGTH:
 
 # Generate tokens
 generated = sequence.copy()
-num_tokens_to_generate = 512
+num_tokens_to_generate = 2048
 print("Generating...")
 
 for _ in range(num_tokens_to_generate):

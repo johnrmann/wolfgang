@@ -1,7 +1,8 @@
 import mido
 
-from .token import Token, Note, ChangeTimeSignature, ChangeTempo, EndOfSong
-from core.constants import TokenType
+from .token import Token, Note, Step, ChangeTimeSignature, ChangeTempo, EndOfSong
+from core.constants import TokenType, TICKS_PER_BEAT
+from core.utils import read_prefixed_int
 
 def song_event_to_mido_message(event):
 	delta_time = event[0]
@@ -14,7 +15,7 @@ def song_event_to_mido_message(event):
 		return mido.MetaMessage('time_signature', numerator=event[2], denominator=event[3], time=delta_time)
 	elif message_type == 'set_tempo':
 		tempo = mido.bpm2tempo(event[2])
-		print(tempo)
+		print(f"Tempo... {tempo}")
 		return mido.MetaMessage('set_tempo', tempo=tempo, time=delta_time)
 	else:
 		raise ValueError("Invalid message type")
@@ -22,11 +23,17 @@ def song_event_to_mido_message(event):
 
 class Song:
 	_tokens: list[Token]
+	_midi_ticks_per_beat: int
 
-	def __init__(self, tokens: list[Token] = None):
+	def __init__(
+		self,
+		tokens: list[Token] = None,
+		midi_ticks_per_beat: int = 480
+	):
 		if tokens is None:
 			tokens = []
 		self._tokens = tokens[:]
+		self._midi_ticks_per_beat = midi_ticks_per_beat
 
 	@staticmethod
 	def from_text(texts: list[str]):
@@ -36,43 +43,55 @@ class Song:
 			text = texts[i]
 			if text == TokenType.PAD.value:
 				i += 1
-			elif text == TokenType.NOTE.value:
-				if i + 4 >= len(texts):
+			elif text == TokenType.STEP.value:
+				if i + 2 >= len(texts):
 					break
-				beat = texts[i + 1]
-				tick = texts[i + 2]
-				duration = texts[i + 3]
-				pitch = texts[i + 4]
-				note = Note.from_text(beat, tick, duration, pitch)
+				steps = read_prefixed_int(texts[i+1], 'B')
+				ticks = read_prefixed_int(texts[i+2], 'T')
+				if steps is None or ticks is None:
+					break
+				token_list.append(Step(ticks=(steps * 12 + ticks)))
+				i += 3
+			elif text == TokenType.NOTE.value:
+				if i + 3 >= len(texts):
+					break
+				note = Note.from_text(texts[i+1 : i+3])
 				if note:
 					token_list.append(note)
-				i += 5
+				i += 3
 			elif text == TokenType.TIMESIG.value:
 				# For now, just assume everything is 4/4
-				token_list.append(ChangeTimeSignature(time_signature=(4, 4), ticks=0))
-				i += 4
+				token_list.append(ChangeTimeSignature(time_signature=(4, 4)))
+				i += 2
 			elif text == TokenType.TEMPO.value:
-				tempo = int(texts[i + 3])
-				token_list.append(ChangeTempo(tempo, ticks=0))
-				i += 4
+				tempo = read_prefixed_int(texts[i+1], 'BPM')
+				if tempo is None:
+					tempo = 120
+				token_list.append(ChangeTempo(tempo))
+				i += 2
 			elif text == TokenType.END.value:
 				i += 1
 				token_list.append(EndOfSong())
 				break
 			else:
 				i += 1
-		token_list = sorted(token_list)
 		return Song(token_list)
 
 	def _message_tuples(self):
+		time = 0
 		for token in self._tokens:
-			if isinstance(token, Note):
-				yield token.start_midi, "note_on", token.pitch
-				yield token.end_midi, "note_off", token.pitch
+			start_midi = int(time * self._midi_ticks_per_beat / TICKS_PER_BEAT)
+			if isinstance(token, Step):
+				time += token.ticks
+			elif isinstance(token, Note):
+				end = time + token.duration
+				end_midi = int(end * self._midi_ticks_per_beat / TICKS_PER_BEAT)
+				yield start_midi, "note_on", token.pitch
+				yield end_midi, "note_off", token.pitch
 			elif isinstance(token, ChangeTimeSignature):
-				yield token.start_midi, "time_signature", *token.time_signature
+				yield start_midi, "time_signature", *token.time_signature
 			elif isinstance(token, ChangeTempo):
-				yield token.start_midi, "set_tempo", token.tempo
+				yield start_midi, "set_tempo", token.tempo
 	
 	def _sorted_message_tuples(self):
 		return sorted(self._message_tuples())
