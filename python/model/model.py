@@ -37,7 +37,6 @@ class HybridModel(nn.Module):
 		self.fc_out = nn.Linear(embed_size, vocab_size)
 
 	def forward(self, x):
-		x = self.embedding(x).permute(0, 2, 1)
-		x = self.conv(x).permute(2, 0, 1)
+		x = self.embedding(x).permute(1, 0, 2)
 		x = self.transformer(x)
 		return self.fc_out(x.permute(1, 0, 2))

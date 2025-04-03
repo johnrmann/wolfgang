@@ -59,6 +59,8 @@ class Song:
 				i += 1
 				token_list.append(EndOfSong())
 				break
+			else:
+				i += 1
 		token_list = sorted(token_list)
 		return Song(token_list)
 

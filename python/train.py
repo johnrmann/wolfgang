@@ -9,7 +9,7 @@ import argparse
 
 from model.constants import BATCH_SIZE, EPOCHS, DEVICE
 from model.dataset import MidiTokenDataset
-from model.loss import sequence_order_penalty
+from model.loss import sequence_order_penalty, excessive_gap_penalty
 from model.model import HybridModel
 
 # Configuration
@@ -59,8 +59,9 @@ if __name__ == '__main__':
 			cr_loss = criterion(output.view(-1, vocab_size), y.view(-1))
 			loss = cr_loss
 			if epoch == EPOCHS - 1:
-				penalty = sequence_order_penalty(y, dataset.id_to_token)
-				loss = cr_loss + (1.0 * penalty)
+				ord_penalty = sequence_order_penalty(y, dataset.id_to_token)
+				gap_penalty = excessive_gap_penalty(y, dataset.id_to_token)
+				loss = cr_loss + (1.0 * (ord_penalty + gap_penalty))
 			loss.backward()
 			optimizer.step()
 			total_loss += loss.item()
