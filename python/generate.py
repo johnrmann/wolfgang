@@ -1,9 +1,9 @@
 import torch
 import argparse
 
-from train import HybridModel, DEVICE, SEQ_LENGTH, EMBED_SIZE, CNN_CHANNELS, N_HEADS, TRANSFORMER_LAYERS
-
 from model.dataset import MidiTokenDataset
+from model.model import HybridModel
+from model.constants import SEQ_LENGTH, DEVICE
 
 # Configuration
 parser = argparse.ArgumentParser(
@@ -32,7 +32,7 @@ vocab_size = len(dataset.vocab)
 
 # Load model
 print("Loading model...")
-model = HybridModel(vocab_size, EMBED_SIZE, CNN_CHANNELS, SEQ_LENGTH, N_HEADS, TRANSFORMER_LAYERS)
+model = HybridModel(vocab_size)
 model.load_state_dict(torch.load(args.model, map_location=DEVICE))
 model.to(DEVICE)
 model.eval()

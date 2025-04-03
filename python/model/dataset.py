@@ -6,8 +6,10 @@ from torch.utils.data import Dataset
 
 from core.constants import TokenType, TimeSignature, TICKS_PER_BEAT, BEATS_PER_SONG
 
+from model.constants import SEQ_LENGTH
+
 class MidiTokenDataset(Dataset):
-	def __init__(self, data_path, seq_length):
+	def __init__(self, data_path, seq_length = SEQ_LENGTH):
 		self.seq_length = seq_length
 		
 		self._generate_vocab()

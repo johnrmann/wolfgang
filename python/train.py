@@ -7,8 +7,10 @@ import os
 import re
 import argparse
 
+from model.constants import BATCH_SIZE, EPOCHS, DEVICE
 from model.dataset import MidiTokenDataset
 from model.loss import sequence_order_penalty
+from model.model import HybridModel
 
 # Configuration
 parser = argparse.ArgumentParser(
@@ -28,44 +30,14 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-DATA_PATH = args.data_path
-DEVICE = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
-SEQ_LENGTH = 32
-BATCH_SIZE = 16
-EMBED_SIZE = 96
-N_HEADS = 2
-TRANSFORMER_LAYERS = 2
-CNN_CHANNELS = 32
-EPOCHS = 5
-
-# Hybrid CNN-Transformer Model
-class HybridModel(nn.Module):
-	def __init__(self, vocab_size, embed_size, cnn_channels, seq_length, n_heads, n_layers):
-		super().__init__()
-		self.embedding = nn.Embedding(vocab_size, embed_size)
-		self.conv = nn.Sequential(
-			nn.Conv1d(embed_size, cnn_channels, kernel_size=3, padding=1),
-			nn.ReLU(),
-			nn.Conv1d(cnn_channels, embed_size, kernel_size=3, padding=1)
-		)
-		encoder_layer = nn.TransformerEncoderLayer(d_model=embed_size, nhead=n_heads)
-		self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
-		self.fc_out = nn.Linear(embed_size, vocab_size)
-
-	def forward(self, x):
-		x = self.embedding(x).permute(0, 2, 1)
-		x = self.conv(x).permute(2, 0, 1)
-		x = self.transformer(x)
-		return self.fc_out(x.permute(1, 0, 2))
-
 # Data
 print("Loading data...")
-dataset = MidiTokenDataset(args.data_path, SEQ_LENGTH)
+dataset = MidiTokenDataset(args.data_path)
 vocab_size = len(dataset.vocab)
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
 # Model, loss, optimizer
-model = HybridModel(vocab_size, EMBED_SIZE, CNN_CHANNELS, SEQ_LENGTH, N_HEADS, TRANSFORMER_LAYERS).to(DEVICE)
+model = HybridModel(vocab_size).to(DEVICE)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
