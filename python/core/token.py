@@ -1,5 +1,15 @@
 from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, TokenType
 
+def get_prefixed_int(tokens: list[str], prefix: str):
+	"""
+	Given a list of tokens, find the first token that starts with the given prefix
+	and return the integer value after the prefix. If not found, return None.
+	"""
+	for token in tokens:
+		if token.startswith(prefix):
+			return int(token[len(prefix):])
+	return None
+
 class Token:
 	time: int
 
@@ -66,11 +76,17 @@ class Note(Token):
 			self.duration = duration
 
 	@staticmethod
-	def from_text(beat: str, tick: str, duration: str, pitch: str):
-		beat = int(beat)
-		tick = int(tick)
-		duration = int(duration)
-		pitch = int(pitch)
+	def from_text(tokens: list[str]):
+		if len(tokens) < 4:
+			return None
+		subseq = tokens[:4]
+		beat = get_prefixed_int(subseq, 'B')
+		tick = get_prefixed_int(subseq, 'T')
+		duration = get_prefixed_int(subseq, 'D')
+		pitch = get_prefixed_int(subseq, 'P')
+		# If one of them is not found, return None
+		if beat is None or tick is None or duration is None or pitch is None:
+			return None
 		ticks = (beat * TICKS_PER_BEAT) + tick
 		return Note(
 			pitch=pitch,
@@ -94,9 +110,9 @@ class Note(Token):
 
 	def __str__(self):
 		beats, ticks = self.time_index()
-		duration = self.duration
+		duration = min(self.duration, 120)
 		pitch = self.pitch
-		return f"NOTE {beats} {ticks} {duration} {pitch}"
+		return f"NOTE B{beats} T{ticks} D{duration} P{pitch}"
 
 	@property
 	def end(self):
@@ -125,7 +141,7 @@ class ChangeTempo(Token):
 	def __str__(self):
 		beats, ticks = self.time_index()
 		tempo = self.tempo
-		return f"TEMPO {beats} {ticks} {tempo}"
+		return f"TEMPO B{beats} T{ticks} {tempo}BPM"
 
 
 TimeSignature = tuple[int, int]
@@ -163,7 +179,7 @@ class ChangeTimeSignature(Token):
 	def __str__(self):
 		beats, ticks = self.time_index()
 		ts = time_signature_string(self.time_signature)
-		return f"TIMESIG {beats} {ticks} {ts}"
+		return f"TIMESIG B{beats} T{ticks} {ts}"
 
 
 class EndOfSong(Token):

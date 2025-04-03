@@ -21,9 +21,21 @@ class MidiTokenDataset(Dataset):
 		# Text tokens
 		vocab = [v.value for v in TokenType]
 		vocab.extend([v.value for v in TimeSignature])
-		# Note tokens
-		for i in range(max(TICKS_PER_BEAT, BEATS_PER_SONG) + 1):
-			vocab.append(str(i))
+		# Note tokens - beat
+		for i in range(BEATS_PER_SONG + 1):
+			vocab.append(f"B{i}")
+		# Note tokens - tick
+		for i in range(TICKS_PER_BEAT):
+			vocab.append(f"T{i}")
+		# Note tokens - duration
+		for i in range(1, TICKS_PER_BEAT * 12):
+			vocab.append(f"D{i}")
+		# Note tokens - pitch
+		for i in range(0, 110):
+			vocab.append(f"P{i}")
+		# For now, add "120BPM" as the default time signature
+		vocab.append("120BPM")
+		vocab.append("124BPM")
 		self.vocab = sorted(set(vocab))
 		self.token_to_id = {t: i for i, t in enumerate(self.vocab)}
 		self.id_to_token = {i: t for i, t in enumerate(self.vocab)}
