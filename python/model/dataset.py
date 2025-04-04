@@ -9,14 +9,14 @@ from core.constants import MessageType, TimeSignature, TICKS_PER_BEAT, BEATS_PER
 from model.constants import SEQ_LENGTH
 
 class MidiTokenDataset(Dataset):
-	def __init__(self, data_path, seq_length = SEQ_LENGTH):
+	def __init__(self, data_path = None, seq_length = SEQ_LENGTH):
 		self.seq_length = seq_length
 		
 		self._generate_vocab()
-		self._read_tokens_from_folder(data_path)
+		if data_path is not None:
+			self._read_tokens_from_folder(data_path)
+			self.encoded = [self.token_to_id[t] for t in self.tokens]
 		
-		self.encoded = [self.token_to_id[t] for t in self.tokens]
-
 	def _generate_vocab(self):
 		# Text tokens
 		vocab = [v.value for v in MessageType]

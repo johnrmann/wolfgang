@@ -11,12 +11,6 @@ parser = argparse.ArgumentParser(
 	description="Generate a sequence of MIDI tokens using a trained Hybrid CNN-Transformer model."
 )
 parser.add_argument(
-	'--data_path',
-	type=str,
-	required=True,
-	help="Path to the directory containing tokenized MIDI files."
-)
-parser.add_argument(
 	'--model',
 	type=str,
 	required=True,
@@ -32,7 +26,7 @@ args = parser.parse_args()
 
 # Load dataset for vocab
 print("Loading dataset and vocab...")
-dataset = MidiTokenDataset(args.data_path, SEQ_LENGTH)
+dataset = MidiTokenDataset(seq_length=SEQ_LENGTH)
 token2id = dataset.token_to_id
 id2token = dataset.id_to_token
 vocab_size = len(dataset.vocab)
