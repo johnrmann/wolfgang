@@ -2,7 +2,7 @@ import mido
 
 from collections import defaultdict
 
-from .token import Token, Note, Step, merge_adjacent_steps, is_accepted_time_signature, ChangeTempo, ChangeTimeSignature, EndOfSong
+from .message import Message, Note, Step, merge_adjacent_steps, is_accepted_time_signature, ChangeTempo, ChangeTimeSignature, EndOfSong
 from .utils import microseconds_per_quarter_to_bpm
 
 from core.constants import TICKS_PER_BEAT
@@ -11,7 +11,7 @@ class MidiTokenizer:
 	_ticks: int = 0
 	_midi_ticks_per_beat: int = 480
 
-	_tokens = list[Token]
+	_messages = list[Message]
 
 	# Is the pitch number (60 being middle C) currently "open"?
 	_open_pitches = dict[int, bool]
@@ -23,7 +23,7 @@ class MidiTokenizer:
 	_last_note_starts: dict[int, int]
 
 	def __init__(self, midi_ticks_per_beat: int = 480):
-		self._tokens = []
+		self._messages = []
 		self._open_pitches = defaultdict(lambda: False)
 		self._last_notes = {}
 		self._last_note_starts = {}
@@ -34,10 +34,10 @@ class MidiTokenizer:
 			return self._ticks
 		delta_ticks = int(TICKS_PER_BEAT * delta_midi / self._midi_ticks_per_beat)
 		self._ticks += delta_ticks
-		if len(self._tokens) != 0 and isinstance(self._tokens[-1], Step):
-			self._tokens[-1].ticks += delta_ticks
+		if len(self._messages) != 0 and isinstance(self._messages[-1], Step):
+			self._messages[-1].ticks += delta_ticks
 		else:
-			self._tokens.append(Step(ticks=delta_ticks))
+			self._messages.append(Step(ticks=delta_ticks))
 		return self._ticks
 
 	def note_on(self, pitch: int, delta_midi: int = None):
@@ -47,7 +47,7 @@ class MidiTokenizer:
 		self._open_pitches[pitch] = True
 		self._last_note_starts[pitch] = self._ticks		
 		new_note = Note(pitch=pitch, duration=0)
-		self._tokens.append(new_note)
+		self._messages.append(new_note)
 		self._last_notes[pitch] = new_note
 
 	def note_off(self, pitch: int, delta_midi: int = None):
@@ -60,24 +60,24 @@ class MidiTokenizer:
 	
 	def time_signature(self, time_signature: tuple[int, int], delta_midi: int = None):
 		self.advance_time(delta_midi)
-		self._tokens.append(ChangeTimeSignature(
+		self._messages.append(ChangeTimeSignature(
 			time_signature=time_signature
 		))
 
 	def tempo(self, tempo: int = 120, delta_midi: int = None):
 		self.advance_time(delta_midi)
-		self._tokens.append(ChangeTempo(tempo=tempo))
+		self._messages.append(ChangeTempo(tempo=tempo))
 
 	def end(self, delta_midi: int = None):
 		self.advance_time(delta_midi)
-		self._tokens.append(EndOfSong())
+		self._messages.append(EndOfSong())
 
 	@property
-	def tokens(self):
-		return self._tokens
+	def messages(self):
+		return self._messages
 
 
-def read_midi_file(file_path: str) -> list[Token]:
+def read_midi_file(file_path: str) -> list[Message]:
 	midi = mido.MidiFile(file_path)
 	tpb = midi.ticks_per_beat
 	tokenizer = MidiTokenizer(midi_ticks_per_beat=tpb)
@@ -109,4 +109,4 @@ def read_midi_file(file_path: str) -> list[Token]:
 	
 	tokenizer.end(delta_midi=0)
 
-	return merge_adjacent_steps(tokenizer.tokens)
+	return merge_adjacent_steps(tokenizer.messages)

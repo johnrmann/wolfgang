@@ -6,16 +6,16 @@ from core.utils import (
 )	
 
 
-class Token:
+class Message:
 	"""
-	All Tokens inherit from this class.
+	A Message is formed from a sequence of Tokens.
 	"""
 	pass
 
 
-class Step(Token):
+class Step(Message):
 	"""
-	A Step token indicates the passage of time. Think of it as a tuple of
+	A Step message indicates the passage of time. Think of it as a tuple of
 	(beat, tick).
 	"""
 
@@ -48,24 +48,24 @@ class Step(Token):
 		return beats, ticks
 
 
-def merge_adjacent_steps(tokens: list[Token]):
+def merge_adjacent_steps(msgs: list[Message]):
 	"""
 	Given a list of tokens, merge adjacent Step tokens into one.
 	"""
-	new_tokens = []
-	for token in tokens:
-		if len(new_tokens) == 0:
-			new_tokens.append(token)
+	new_msgs = []
+	for msg in msgs:
+		if len(new_msgs) == 0:
+			new_msgs.append(msg)
 			continue
-		prev_token = new_tokens[-1]
-		if isinstance(prev_token, Step) and isinstance(token, Step):
-			prev_token.ticks += token.ticks
+		prev_msg = new_msgs[-1]
+		if isinstance(prev_msg, Step) and isinstance(msg, Step):
+			prev_msg.ticks += msg.ticks
 		else:
-			new_tokens.append(token)
-	return new_tokens
+			new_msgs.append(msg)
+	return new_msgs
 
 
-class Note(Token):
+class Note(Message):
 	pitch: int
 	duration: int
 
@@ -104,7 +104,7 @@ class Note(Token):
 		return f"NOTE D{duration} P{pitch}"
 
 
-class ChangeTempo(Token):
+class ChangeTempo(Message):
 	tempo: int
 
 	def __init__(self, tempo: int = 120):
@@ -141,7 +141,7 @@ def time_signature_string(time_signature: TimeSignature):
 	raise ValueError("Invalid time signature")
 
 
-class ChangeTimeSignature(Token):
+class ChangeTimeSignature(Message):
 	time_signature: TimeSignature
 
 	def __init__(self, time_signature: TimeSignature = None):
@@ -153,7 +153,7 @@ class ChangeTimeSignature(Token):
 		return f"TIMESIG {ts}"
 
 
-class EndOfSong(Token):
+class EndOfSong(Message):
 	def __str__(self):
 		control = MessageType.END.value
 		return f"{control}"

@@ -1,6 +1,6 @@
 import mido
 
-from .token import Token, Note, Step, ChangeTimeSignature, ChangeTempo, EndOfSong, merge_adjacent_steps
+from .message import Message, Note, Step, ChangeTimeSignature, ChangeTempo, EndOfSong, merge_adjacent_steps
 from core.constants import MessageType, TICKS_PER_BEAT
 from core.utils import read_prefixed_int
 
@@ -22,12 +22,12 @@ def song_event_to_mido_message(event):
 
 
 class Song:
-	_tokens: list[Token]
+	_tokens: list[Message]
 	_midi_ticks_per_beat: int
 
 	def __init__(
 		self,
-		tokens: list[Token] = None,
+		tokens: list[Message] = None,
 		midi_ticks_per_beat: int = 480
 	):
 		if tokens is None:

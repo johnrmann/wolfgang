@@ -1,4 +1,4 @@
-from .token import Step, Note, EndOfSong, ChangeTempo, ChangeTimeSignature, merge_adjacent_steps
+from .message import Step, Note, EndOfSong, ChangeTempo, ChangeTimeSignature, merge_adjacent_steps
 
 def test__step__sets_ticks():
 	token = Step(ticks=1)
