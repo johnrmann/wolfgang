@@ -2,6 +2,8 @@
 
 import {useState, useCallback} from 'react';
 
+import PianoRoll from '@/components/PianoRoll';
+
 import {getHello} from '../api/api';
 
 export default function Home() {
@@ -18,6 +20,7 @@ export default function Home() {
 			<h1>Home</h1>
 			<p>{message}</p>
 			<button onClick={onButtonClick}>Get Hello</button>
+			<PianoRoll />
 		</main>
 	);
 }
