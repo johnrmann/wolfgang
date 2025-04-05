@@ -1,9 +1,9 @@
 import torch
 import argparse
 
-from model.dataset import MidiTokenDataset
 from core.song import Song
-from model.model import HybridModel
+
+from model.run import get_dataset_and_model
 from model.constants import SEQ_LENGTH, DEVICE
 
 # Configuration
@@ -24,19 +24,9 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-# Load dataset for vocab
-print("Loading dataset and vocab...")
-dataset = MidiTokenDataset(seq_length=SEQ_LENGTH)
-token2id = dataset.token_to_id
+dataset, model = get_dataset_and_model(args.model, debug=True)
 id2token = dataset.id_to_token
-vocab_size = len(dataset.vocab)
-
-# Load model
-print("Loading model...")
-model = HybridModel(vocab_size)
-model.load_state_dict(torch.load(args.model, map_location=DEVICE))
-model.to(DEVICE)
-model.eval()
+token2id = dataset.token_to_id
 
 # Starting seed: TEMPO 0 0 120, NOTE 0 0 1 60
 seed_tokens = [

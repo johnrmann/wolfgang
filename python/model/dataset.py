@@ -57,3 +57,12 @@ class MidiTokenDataset(Dataset):
 		x = torch.tensor(self.encoded[idx:idx+self.seq_length])
 		y = torch.tensor(self.encoded[idx+1:idx+self.seq_length+1])
 		return x, y
+
+	def pad_sequence(self, sequence):
+		# Pad to SEQ_LENGTH if needed
+		if len(sequence) < self.seq_length:
+			pad_token = self.token_to_id["PAD"]
+			seq2 = [pad_token] * (self.seq_length - len(sequence)) + sequence
+			return seq2
+		else:
+			return sequence
