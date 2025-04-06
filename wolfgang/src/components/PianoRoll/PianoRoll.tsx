@@ -88,7 +88,7 @@ const PianoRoll = (options: Options) => {
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const [canvasSize, setCanvasSize] = useState({
-		width: 800,
+		width: 1200,
 		height: 1200,
 	});
 
