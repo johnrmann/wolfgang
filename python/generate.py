@@ -5,6 +5,7 @@ from core.song import Song
 
 from model.run import get_dataset_and_model
 from model.constants import SEQ_LENGTH, DEVICE
+from model.seeds import EMPTY_SEED
 
 # Configuration
 parser = argparse.ArgumentParser(
@@ -29,26 +30,7 @@ id2token = dataset.id_to_token
 token2id = dataset.token_to_id
 
 # Starting seed: TEMPO 0 0 120, NOTE 0 0 1 60
-seed_tokens = [
-	"TIMESIG", "TS.4.4",
-	"TEMPO", "BPM120",
-	"NOTE", "D12", "P60",
-	"STEP", "B1", "T0",
-	"NOTE", "D12", "P62",
-	"STEP", "B1", "T0",
-	"NOTE", "D12", "P64",
-	"STEP", "B1", "T0",
-	# "NOTE", "D12", "P64",
-	# "STEP", "B1", "T0",
-	# "NOTE", "D12", "P64",
-	# "STEP", "B1", "T0",
-	# "NOTE", "D12", "P65",
-	# "STEP", "B1", "T0",
-	# "NOTE", "D12", "P67",
-	# "STEP", "B1", "T0",
-	# "NOTE", "D12", "P67",
-	# "STEP", "B1", "T0",
-]
+seed_tokens = EMPTY_SEED
 sequence = [token2id[t] for t in seed_tokens]
 
 # Pad to SEQ_LENGTH if needed

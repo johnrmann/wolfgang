@@ -46,7 +46,7 @@ class Song:
 			elif text == MessageType.STEP.value:
 				if i + 1 >= len(texts):
 					break
-				ticks = read_prefixed_int(texts[i+2], 'T')
+				ticks = read_prefixed_int(texts[i+1], 'T')
 				if ticks is None:
 					break
 				token_list.append(Step(ticks=(ticks)))
