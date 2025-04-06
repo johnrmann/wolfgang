@@ -77,8 +77,7 @@ class MidiTokenizer:
 		return self._messages
 
 
-def read_midi_file(file_path: str) -> list[Message]:
-	midi = mido.MidiFile(file_path)
+def read_midi(midi: mido.MidiFile) -> list[Message]:
 	tpb = midi.ticks_per_beat
 	tokenizer = MidiTokenizer(midi_ticks_per_beat=tpb)
 
@@ -88,6 +87,7 @@ def read_midi_file(file_path: str) -> list[Message]:
 
 	for idx, track in enumerate(midi.tracks):
 		for msg in track:
+			print(msg)
 			if msg.type == 'note_on':
 				# Check the velocity of the note. If it's 0, then it's a
 				# note off.
@@ -97,6 +97,8 @@ def read_midi_file(file_path: str) -> list[Message]:
 					tokenizer.note_on(msg.note, msg.time)
 			elif msg.type == 'note_off':
 				tokenizer.note_off(msg.note, msg.time)
+			elif msg.type == 'control_change':
+				tokenizer.advance_time(msg.time)
 			elif msg.type == 'time_signature':
 				timesig = msg.numerator, msg.denominator
 				if is_accepted_time_signature(timesig):
@@ -104,8 +106,6 @@ def read_midi_file(file_path: str) -> list[Message]:
 						time_signature=timesig,
 						delta_midi=msg.time
 					)
-				else:
-					return None
 			elif msg.type == 'set_tempo':
 				tempo = int(mido.tempo2bpm(msg.tempo))
 				tokenizer.tempo(tempo=tempo, delta_midi=msg.time)
@@ -113,3 +113,8 @@ def read_midi_file(file_path: str) -> list[Message]:
 	tokenizer.end(delta_midi=0)
 
 	return merge_adjacent_steps(tokenizer.messages)
+
+
+def read_midi_file(file_path: str) -> list[Message]:
+	midi = mido.MidiFile(file_path)
+	return read_midi(midi)
