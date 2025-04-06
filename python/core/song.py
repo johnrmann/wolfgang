@@ -63,9 +63,7 @@ class Song:
 				token_list.append(ChangeTimeSignature(time_signature=(4, 4)))
 				i += 2
 			elif text == MessageType.TEMPO.value:
-				tempo = read_prefixed_int(texts[i+1], 'BPM')
-				if tempo is None:
-					tempo = 120
+				tempo = texts[i+1]
 				token_list.append(ChangeTempo(tempo))
 				i += 2
 			elif text == MessageType.END.value:

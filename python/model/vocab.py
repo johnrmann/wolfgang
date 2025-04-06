@@ -1,6 +1,7 @@
 from core.constants import (
 	MessageType,
 	TimeSignature,
+	TempoMarking,
 	MAX_NOTE_DURATION,
 	MAX_REST_DURATION
 )
@@ -28,9 +29,8 @@ class Vocab:
 		# Note tokens - pitch
 		for i in range(0, 110):
 			vocab.append(f"P{i}")
-		# For now, add "120BPM" as the default time signature
-		vocab.append("BPM120")
-		vocab.append("BPM124")
+		# Tempo marking tokens
+		vocab.extend([v.value for v in TempoMarking])
 		self.vocab = sorted(set(vocab))
 		self.token_to_id = {t: i for i, t in enumerate(self.vocab)}
 		self.id_to_token = {i: t for i, t in enumerate(self.vocab)}

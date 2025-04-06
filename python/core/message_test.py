@@ -59,9 +59,16 @@ def test__tempo__init():
 	assert tempo.tempo == 144
 
 
+def test__tempo__init_string():
+	tempo = ChangeTempo("LARGO")
+	assert tempo.tempo == 40
+	tempo2 = ChangeTempo("ALLEGRO")
+	assert tempo2.tempo == 120
+
+
 def test__tempo__str():
 	tempo = ChangeTempo(144)
-	assert str(tempo) == "TEMPO BPM144"
+	assert str(tempo) == "TEMPO VIVACE"
 
 
 def test__time_signature__init():

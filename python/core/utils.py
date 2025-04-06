@@ -1,7 +1,21 @@
-from core.constants import MessageType
+from core.constants import MessageType, TempoMarking, TEMPO_MARKING_TO_BPM
 
 def microseconds_per_quarter_to_bpm(microseconds_per_quarter: int) -> float:
 	return 60_000_000 / microseconds_per_quarter
+
+
+def bpm_to_tempo_marking(bpm: float) -> TempoMarking:
+	"""
+	Given a BPM value, return the corresponding tempo marking.
+	"""
+	choice = None
+	closest_dist = float('inf')
+	for marking, marking_bpm in TEMPO_MARKING_TO_BPM.items():
+		dist = abs(marking_bpm - bpm)
+		if dist < closest_dist:
+			closest_dist = dist
+			choice = marking
+	return choice
 
 
 def read_prefixed_int(token: str, prefix: str):

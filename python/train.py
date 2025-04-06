@@ -11,11 +11,6 @@ from torch.utils.data import Dataset, DataLoader
 
 from model.constants import BATCH_SIZE, EPOCHS, DEVICE
 from model.dataset import MidiTokenDataset
-from model.loss import (
-	zero_length_penalty,
-	consecutive_steps_penalty,
-	malformed_penalty,
-)
 from model.model import HybridModel
 
 # Configuration

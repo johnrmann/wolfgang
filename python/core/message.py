@@ -1,8 +1,14 @@
-from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, MAX_NOTE_DURATION, MessageType
+from .constants import (
+	TEMPO_MARKING_TO_BPM,
+	MIDI_TICKS_PER_BEAT,
+	TICKS_PER_BEAT,
+	MAX_NOTE_DURATION,
+	MessageType
+)
 
 from core.utils import (
 	find_prefixed_int,
-	read_prefixed_int,
+	bpm_to_tempo_marking,
 )	
 
 
@@ -101,13 +107,16 @@ class Note(Message):
 class ChangeTempo(Message):
 	tempo: int
 
-	def __init__(self, tempo: int = 120):
+	def __init__(self, tempo: int | str = 120):
 		super().__init__()
-		self.tempo = tempo
+		if isinstance(tempo, str):
+			self.tempo = TEMPO_MARKING_TO_BPM[tempo.upper()]
+		else:
+			self.tempo = tempo
 
 	def __str__(self):
-		tempo = self.tempo
-		return f"TEMPO BPM{tempo}"
+		tempo = bpm_to_tempo_marking(self.tempo)
+		return f"TEMPO {tempo.value}"
 
 
 TimeSignature = tuple[int, int]

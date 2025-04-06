@@ -71,12 +71,10 @@ TIMESIG TS.4.4
 
 ### Tempo Message
 
-Typically found at the start of a tokenized song. Represents a change in the tempo. Consists of the tempo control token along with the specified tempo in beats per minute.
-
-As of now, only 120BPM and 124BPM are supported.
+Typically found at the start of a tokenized song. Represents a change in the tempo. Consists of a tempo marking.
 
 ```
-TEMPO B120
+TEMPO ALLEGRO
 ```
 
 ### Note Message

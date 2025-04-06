@@ -40,6 +40,37 @@ class TimeSignature(Enum):
 	THREE_FOUR = 'TS.3.4'
 	SIX_EIGHT = 'TS.6.8'
 
+class TempoMarking(Enum):
+	""""
+	An enumeration of the different tempo markings that can be found in a
+	song.
+	"""
+	LARGO = 'LARGO'
+	ADAGIO = 'ADAGIO'
+	ADANTE = 'ADANTE'
+	ALLEGRO = 'ALLEGRO'
+	VIVACE = 'VIVACE'
+	PRESTO = 'PRESTO'
+	PRESTISSIMO = 'PRESTISSIMO'
+
+TEMPO_MARKING_TO_BPM = {
+	TempoMarking.LARGO: 40,
+	TempoMarking.ADAGIO: 60,
+	TempoMarking.ADANTE: 80,
+	TempoMarking.ALLEGRO: 120,
+	TempoMarking.VIVACE: 140,
+	TempoMarking.PRESTO: 160,
+	TempoMarking.PRESTISSIMO: 200,
+
+	TempoMarking.LARGO.value: 40,
+	TempoMarking.ADAGIO.value: 60,
+	TempoMarking.ADANTE.value: 80,
+	TempoMarking.ALLEGRO.value: 120,
+	TempoMarking.VIVACE.value: 140,
+	TempoMarking.PRESTO.value: 160,
+	TempoMarking.PRESTISSIMO.value: 200,
+}
+
 # Four ticks per beat gives us resolution of sixteenth notes, times three so
 # we can represent triplets.
 TICKS_PER_BEAT = 12
