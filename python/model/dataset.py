@@ -22,7 +22,7 @@ class MidiTokenDataset(Dataset):
 		vocab = [v.value for v in MessageType]
 		vocab.extend([v.value for v in TimeSignature])
 		# Note tokens - beat
-		for i in range(MAX_REST_DURATION):
+		for i in range(1, MAX_REST_DURATION):
 			vocab.append(f"T{i}")
 		# Note tokens - duration
 		for i in range(1, MAX_NOTE_DURATION):
