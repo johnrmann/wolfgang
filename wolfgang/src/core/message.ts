@@ -18,6 +18,14 @@ export interface Note extends Message {
 	duration: number;
 }
 
+export function makeNote(pitch: number, duration: number): Note {
+	return {
+		messageType: MessageType.NOTE,
+		pitch,
+		duration,
+	};
+}
+
 export interface ChangeTempo extends Message {
 	messageType: MessageType.CHANGE_TEMPO;
 
