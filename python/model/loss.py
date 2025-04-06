@@ -13,7 +13,7 @@ def consecutive_steps_penalty(target, id2token):
 				i += 1
 				continue
 			while tokens[i] == 'STEP' and i < len(tokens):
-				i += 3
+				i += 2
 				violations += 1
 				if i >= len(tokens):
 					break

@@ -18,7 +18,7 @@ class MessageType(Enum):
 
 TOKEN_TYPE_TO_PAYLOAD_LENGTH = {
 	MessageType.PAD: 0,
-	MessageType.STEP: 2,
+	MessageType.STEP: 1,
 	MessageType.NOTE: 2,
 	MessageType.TEMPO: 1,
 	MessageType.TIMESIG: 1,
