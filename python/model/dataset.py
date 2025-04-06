@@ -7,35 +7,16 @@ from torch.utils.data import Dataset
 from core.constants import MessageType, TimeSignature, MAX_NOTE_DURATION, MAX_REST_DURATION
 
 from model.constants import SEQ_LENGTH
+from model.vocab import Vocab
 
 class MidiTokenDataset(Dataset):
 	def __init__(self, data_path = None, seq_length = SEQ_LENGTH):
 		self.seq_length = seq_length
 		
-		self._generate_vocab()
+		self.vocab = Vocab()
 		if data_path is not None:
 			self._read_tokens_from_folder(data_path)
 			self.encoded = [self.token_to_id[t] for t in self.tokens]
-		
-	def _generate_vocab(self):
-		# Text tokens
-		vocab = [v.value for v in MessageType]
-		vocab.extend([v.value for v in TimeSignature])
-		# Note tokens - beat
-		for i in range(1, MAX_REST_DURATION):
-			vocab.append(f"T{i}")
-		# Note tokens - duration
-		for i in range(1, MAX_NOTE_DURATION):
-			vocab.append(f"D{i}")
-		# Note tokens - pitch
-		for i in range(0, 110):
-			vocab.append(f"P{i}")
-		# For now, add "120BPM" as the default time signature
-		vocab.append("BPM120")
-		vocab.append("BPM124")
-		self.vocab = sorted(set(vocab))
-		self.token_to_id = {t: i for i, t in enumerate(self.vocab)}
-		self.id_to_token = {i: t for i, t in enumerate(self.vocab)}
 
 	def _read_tokens_from_folder(self, data_path):
 		self.files = sorted(glob.glob(os.path.join(data_path, '*.tok')))
@@ -54,6 +35,14 @@ class MidiTokenDataset(Dataset):
 		x = torch.tensor(self.encoded[idx:idx+self.seq_length])
 		y = torch.tensor(self.encoded[idx+1:idx+self.seq_length+1])
 		return x, y
+
+	@property
+	def id_to_token(self):
+		return self.vocab.id_to_token
+
+	@property
+	def token_to_id(self):
+		return self.vocab.token_to_id
 
 	def pad_sequence(self, sequence):
 		# Pad to SEQ_LENGTH if needed

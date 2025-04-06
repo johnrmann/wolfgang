@@ -37,4 +37,4 @@ def generate(dataset: MidiTokenDataset, model, seed: list[str], length: int):
 			next_token = torch.argmax(y[:, -1, :], dim=-1).item()
 			generated.append(next_token)
 
-	return [dataset.id_to_token[i] for i in generated]
+	return [dataset.vocab.id_to_token[i] for i in generated]

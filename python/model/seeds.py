@@ -1,11 +1,11 @@
 EMPTY_SEED = [
 	"TIMESIG", "TS.4.4",
-	"TEMPO", "BPM120",
+	"TEMPO", "ALLEGRO",
 ]
 
 MIDDLE_C_SEED = [
 	"TIMESIG", "TS.4.4",
-	"TEMPO", "BPM120",
+	"TEMPO", "ALLEGRO",
 	"NOTE", "D12", "P60",
 	"STEP", "T12",
 	"NOTE", "D12", "P62",
@@ -16,7 +16,7 @@ MIDDLE_C_SEED = [
 
 ODE_TO_JOY_SEED = [
 	"TIMESIG", "TS.4.4",
-	"TEMPO", "BPM120",
+	"TEMPO", "ALLEGRO",
 	"NOTE", "D12", "P64",
 	"STEP", "T12",
 	"NOTE", "D12", "P64",

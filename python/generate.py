@@ -5,7 +5,7 @@ from core.song import Song
 
 from model.run import get_dataset_and_model
 from model.constants import SEQ_LENGTH, DEVICE
-from model.seeds import EMPTY_SEED
+from model.seeds import ODE_TO_JOY_SEED
 
 # Configuration
 parser = argparse.ArgumentParser(
@@ -26,11 +26,11 @@ parser.add_argument(
 args = parser.parse_args()
 
 dataset, model = get_dataset_and_model(args.model, debug=True)
-id2token = dataset.id_to_token
-token2id = dataset.token_to_id
+id2token = dataset.vocab.id_to_token
+token2id = dataset.vocab.token_to_id
 
 # Starting seed: TEMPO 0 0 120, NOTE 0 0 1 60
-seed_tokens = EMPTY_SEED
+seed_tokens = ODE_TO_JOY_SEED
 sequence = [token2id[t] for t in seed_tokens]
 
 # Pad to SEQ_LENGTH if needed

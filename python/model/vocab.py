@@ -34,4 +34,6 @@ class Vocab:
 		self.vocab = sorted(set(vocab))
 		self.token_to_id = {t: i for i, t in enumerate(self.vocab)}
 		self.id_to_token = {i: t for i, t in enumerate(self.vocab)}
-		
+
+	def __len__(self):
+		return len(self.vocab)
