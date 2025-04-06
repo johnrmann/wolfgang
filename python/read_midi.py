@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	if os.path.isdir(in_path):
 		for root, _, files in os.walk(in_path):
 			for file in files:
-				if file.endswith('.mid'):
+				if file.endswith('.mid') and not file.endswith('.ignore.mid'):
 					new_file = file.replace('.mid', '.tok')
 					new_out_path = os.path.join(out_path, new_file)
 					try:

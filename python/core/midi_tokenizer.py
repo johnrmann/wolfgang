@@ -6,6 +6,7 @@ from .message import Message, Note, Step, merge_adjacent_steps, is_accepted_time
 from .utils import microseconds_per_quarter_to_bpm
 
 from core.constants import TICKS_PER_BEAT
+from core.midi import pick_tracks
 
 class MidiTokenizer:
 	_ticks: int = 0
@@ -117,4 +118,4 @@ def read_midi(midi: mido.MidiFile) -> list[Message]:
 
 def read_midi_file(file_path: str) -> list[Message]:
 	midi = mido.MidiFile(file_path)
-	return read_midi(midi)
+	return read_midi(pick_tracks(midi))
