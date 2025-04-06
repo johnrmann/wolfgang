@@ -1,4 +1,4 @@
-from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, MessageType
+from .constants import MIDI_TICKS_PER_BEAT, TICKS_PER_BEAT, MAX_NOTE_DURATION, MessageType
 
 from core.utils import (
 	find_prefixed_int,
@@ -39,13 +39,7 @@ class Step(Message):
 		raise ValueError("Cannot add Step to non-Step object")
 
 	def __str__(self):
-		beats, ticks = self.time_index()
-		return f"STEP B{beats} T{ticks}"
-
-	def time_index(self):
-		beats = self.ticks // TICKS_PER_BEAT
-		ticks = self.ticks % TICKS_PER_BEAT
-		return beats, ticks
+		return f"STEP T{self.ticks}"
 
 
 def merge_adjacent_steps(msgs: list[Message]):
@@ -79,9 +73,9 @@ class Note(Message):
 		self.pitch = pitch
 		if duration is None and midi_duration is not None:
 			factor = (midi_duration / midi_ticks_per_beat)
-			self.duration = int(TICKS_PER_BEAT * factor)
+			self.duration = min(int(TICKS_PER_BEAT * factor), MAX_NOTE_DURATION)
 		else:
-			self.duration = duration
+			self.duration = min(duration, MAX_NOTE_DURATION)
 
 	@staticmethod
 	def from_text(tokens: list[str]):

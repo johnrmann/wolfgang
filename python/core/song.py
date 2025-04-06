@@ -44,14 +44,13 @@ class Song:
 			if text == MessageType.PAD.value:
 				i += 1
 			elif text == MessageType.STEP.value:
-				if i + 2 >= len(texts):
+				if i + 1 >= len(texts):
 					break
-				steps = read_prefixed_int(texts[i+1], 'B')
 				ticks = read_prefixed_int(texts[i+2], 'T')
-				if steps is None or ticks is None:
+				if ticks is None:
 					break
-				token_list.append(Step(ticks=(steps * 12 + ticks)))
-				i += 3
+				token_list.append(Step(ticks=(ticks)))
+				i += 2
 			elif text == MessageType.NOTE.value:
 				if i + 3 >= len(texts):
 					break

@@ -52,3 +52,9 @@ MIDI_TICKS_PER_BEAT = 480
 
 # The maximum number of notes in a song.
 BEATS_PER_SONG = 1024
+
+# We don't expect rests to be longer than 24 beats (six notes).
+MAX_REST_DURATION = 24 * TICKS_PER_BEAT
+
+# We don't expect notes to be longer than 16 beats (eight notes).
+MAX_NOTE_DURATION = 16 * TICKS_PER_BEAT

@@ -10,24 +10,14 @@ def test__step__sets_midi_ticks():
 	assert token.ticks == 12
 
 
-def test__step__time_index_1():
-	token = Step(0)
-	assert token.time_index() == (0, 0)
-
-
-def test__step__time_index_2():
-	token = Step(13)
-	assert token.time_index() == (1, 1)
-
-
 def test__step__string():
 	token = Step(0)
-	assert str(token) == "STEP B0 T0"
+	assert str(token) == "STEP T0"
 
 
 def test__step__string_2():
 	token = Step(13)
-	assert str(token) == "STEP B1 T1"
+	assert str(token) == "STEP T13"
 
 
 def test__step__errors_no_time():
@@ -45,6 +35,15 @@ def test__note__init():
 	)
 	assert note.pitch == 60
 	assert note.duration == 12
+
+
+def test__note__init_beyond_max():
+	note = Note(
+		pitch=60,
+		duration=1000,
+	)
+	assert note.pitch == 60
+	assert note.duration == 12 * 16
 
 
 def test__note__str():

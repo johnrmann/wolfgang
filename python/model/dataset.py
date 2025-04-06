@@ -4,7 +4,7 @@ import torch
 
 from torch.utils.data import Dataset
 
-from core.constants import MessageType, TimeSignature, TICKS_PER_BEAT, BEATS_PER_SONG
+from core.constants import MessageType, TimeSignature, MAX_NOTE_DURATION, MAX_REST_DURATION
 
 from model.constants import SEQ_LENGTH
 
@@ -22,13 +22,10 @@ class MidiTokenDataset(Dataset):
 		vocab = [v.value for v in MessageType]
 		vocab.extend([v.value for v in TimeSignature])
 		# Note tokens - beat
-		for i in range(BEATS_PER_SONG + 1):
-			vocab.append(f"B{i}")
-		# Note tokens - tick
-		for i in range(TICKS_PER_BEAT):
+		for i in range(MAX_REST_DURATION):
 			vocab.append(f"T{i}")
 		# Note tokens - duration
-		for i in range(1, TICKS_PER_BEAT * 12):
+		for i in range(1, MAX_NOTE_DURATION):
 			vocab.append(f"D{i}")
 		# Note tokens - pitch
 		for i in range(0, 110):

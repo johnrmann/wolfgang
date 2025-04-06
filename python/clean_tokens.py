@@ -18,7 +18,7 @@ if not os.path.isdir(directory):
 	print(f"Error: {directory} is not a directory.")
 	exit(1)
 
-EMPTY_STEP = "STEP B0 T0"
+EMPTY_STEP = "STEP T0"
 
 def clean_file(filepath):
 	with open(filepath, 'r') as f:
