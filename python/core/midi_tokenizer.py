@@ -100,7 +100,10 @@ def read_midi_file(file_path: str) -> list[Message]:
 			elif msg.type == 'time_signature':
 				timesig = msg.numerator, msg.denominator
 				if is_accepted_time_signature(timesig):
-					tokenizer.time_signature(time_signature=timesig, delta_midi=msg.time)
+					tokenizer.time_signature(
+						time_signature=timesig,
+						delta_midi=msg.time
+					)
 				else:
 					return None
 			elif msg.type == 'set_tempo':
