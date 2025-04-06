@@ -88,7 +88,6 @@ def read_midi(midi: mido.MidiFile) -> list[Message]:
 
 	for idx, track in enumerate(midi.tracks):
 		for msg in track:
-			print(msg)
 			if msg.type == 'note_on':
 				# Check the velocity of the note. If it's 0, then it's a
 				# note off.
