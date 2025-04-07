@@ -26,6 +26,17 @@ export class Song {
 		}
 	}
 
+	public *allNotes(): Generator<[number, Note]> {
+		for (const loopTick of Object.keys(this.messages)) {
+			const atThisTick = this.messages[Number(loopTick)];
+			for (const message of atThisTick) {
+				if (message.messageType === 'NOTE') {
+					yield [Number(loopTick), message as Note];
+				}
+			}
+		}
+	}
+
 	public timeSignatureAt(tick: number): [number, number] {
 		let num = -1;
 		let denom = -1;
