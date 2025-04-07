@@ -110,7 +110,7 @@ def read_midi(midi: mido.MidiFile) -> list[Message]:
 				tempo = int(mido.tempo2bpm(msg.tempo))
 				tokenizer.tempo(tempo=tempo, delta_midi=msg.time)
 	
-	tokenizer.end(delta_midi=0)
+	tokenizer.end(delta_midi=1)
 
 	return merge_adjacent_steps(tokenizer.messages)
 

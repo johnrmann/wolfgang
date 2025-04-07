@@ -2,18 +2,25 @@ import os
 import sys
 
 from core.midi_tokenizer import read_midi_file
-from core.message import Note, merge_adjacent_steps
+from core.message import Note, Step, merge_adjacent_steps
 
 def transform_midi_file(in_path: str, out_path: str | None = None):
-	tokens = read_midi_file(in_path)
+	messages = read_midi_file(in_path)
+	messages = [
+		msg for msg in messages
+		if not isinstance(msg, Note) or msg.duration > 0
+	]
+	messages = [
+		msg for msg in messages
+		if not isinstance(msg, Step) or msg.ticks > 0
+	]
+	messages = merge_adjacent_steps(messages)
 	if out_path is None:
-		for token in tokens:
+		for token in messages:
 			print(token)
 	else:
 		with open(out_path, 'w') as f:
-			for token in tokens:
-				if isinstance(token, Note) and token.duration == 0:
-					continue
+			for token in messages:
 				f.write(str(token) + '\n')
 			print("Wrote output to", out_path)
 

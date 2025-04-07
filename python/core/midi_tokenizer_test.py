@@ -90,3 +90,15 @@ def test__midi_tokenizer__midi_ticks_per_beat():
 	assert tokenizer.messages[0].pitch == 60
 	assert tokenizer.messages[2].duration == 12
 	assert tokenizer.messages[2].pitch == 61
+
+
+def test__midi_tokenizer__advance_time():
+	tokenizer = MidiTokenizer()
+	tokenizer.advance_time(480)
+	assert len(tokenizer.messages) == 1
+	assert isinstance(tokenizer.messages[0], Step)
+	assert tokenizer.messages[0].ticks == 12
+	tokenizer.advance_time(480)
+	assert len(tokenizer.messages) == 1
+	assert isinstance(tokenizer.messages[0], Step)
+	assert tokenizer.messages[0].ticks == 24

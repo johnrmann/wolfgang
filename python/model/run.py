@@ -34,7 +34,16 @@ def generate(dataset: MidiTokenDataset, model, seed: list[str], length: int):
 		x = torch.tensor(generated[-dataset.seq_length:], dtype=torch.long).unsqueeze(0).to(DEVICE)
 		with torch.no_grad():
 			y = model(x)
-			next_token = torch.argmax(y[:, -1, :], dim=-1).item()
-			generated.append(next_token)
+			# next_token = torch.argmax(y[:, -1, :], dim=-1).item()
+			# generated.append(next_token)
+			logits = y[:, -1, :]
+		
+		valid_ids = dataset.vocab.valid_next_tokens(generated)
+		mask = torch.full_like(logits, -float('inf'))
+		for valid_id in valid_ids:
+			mask[0, valid_id] = 0
+		masked_logits = logits + mask
+		next_token_id = torch.argmax(masked_logits, dim=-1).item()
+		generated.append(next_token_id)
 
 	return [dataset.vocab.id_to_token[i] for i in generated]
