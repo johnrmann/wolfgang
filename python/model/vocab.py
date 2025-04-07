@@ -55,6 +55,8 @@ class Vocab:
 		last_token = self.id_to_token[current_ids[-1]]
 		if last_token == f"T{MAX_REST_DURATION + 1}":
 			return self.CONTROL_TOKEN_IDS
+		elif last_token.startswith('TS.'):
+			return self.CONTROL_TOKEN_IDS
 		elif last_token.startswith("T"):
 			return self.CONTROL_TOKEN_IDS
 		elif last_token.startswith("P"):
@@ -72,4 +74,4 @@ class Vocab:
 		elif last_token == 'STEP':
 			return self.TICK_TOKEN_IDS
 		else:
-			raise ValueError(f"Unknown token: {last_token}")
+			return self.CONTROL_TOKEN_IDS

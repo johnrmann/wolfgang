@@ -9,7 +9,7 @@ import argparse
 from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
 
-from model.constants import BATCH_SIZE, EPOCHS, DEVICE
+from model.constants import BATCH_SIZE, DEVICE
 from model.dataset import MidiTokenDataset
 from model.model import HybridModel
 
@@ -29,6 +29,12 @@ parser.add_argument(
 	required=True,
 	help="Path to save the trained model."
 )
+parser.add_argument(
+	'--epochs',
+	type=int,
+	default=10,
+	help="Number of training epochs."
+)
 args = parser.parse_args()
 
 # Data
@@ -45,9 +51,9 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 # Training Loop
 if __name__ == '__main__':
 	print("Training...")
-	for epoch in tqdm(range(EPOCHS)):
+	for epoch in tqdm(range(args.epochs)):
 		total_loss = 0
-		inner_count = tqdm(total=len(dataloader), desc=f"Epoch {epoch+1}/{EPOCHS}")
+		inner_count = tqdm(total=len(dataloader), desc=f"Epoch {epoch+1}/{args.epochs}")
 		for x, y in dataloader:
 			x, y = x.to(DEVICE), y.to(DEVICE)
 			optimizer.zero_grad()
@@ -60,7 +66,7 @@ if __name__ == '__main__':
 			inner_count.update(1)
 		inner_count.close()
 		avg_loss = total_loss / len(dataloader)
-		print(f"Epoch {epoch+1}/{EPOCHS}, Loss: {avg_loss:.4f}")
+		print(f"Epoch {epoch+1}/{args.epochs}, Loss: {avg_loss:.4f}")
 
 	print("Training completed.")
 

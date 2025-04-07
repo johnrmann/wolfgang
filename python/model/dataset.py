@@ -44,7 +44,7 @@ class MidiTokenDataset(Dataset):
 	def token_to_id(self):
 		return self.vocab.token_to_id
 
-	def pad_sequence(self, sequence):
+	def _pad_sequence_int(self, sequence: list[int]) -> list[int]:
 		# Pad to SEQ_LENGTH if needed
 		if len(sequence) < self.seq_length:
 			pad_token = self.token_to_id["PAD"]
@@ -52,3 +52,18 @@ class MidiTokenDataset(Dataset):
 			return seq2
 		else:
 			return sequence
+
+	def _pad_sequence_str(self, sequence: list[str]) -> list[str]:
+		# Pad to SEQ_LENGTH if needed
+		if len(sequence) < self.seq_length:
+			pad_token = "PAD"
+			seq2 = [pad_token] * (self.seq_length - len(sequence)) + sequence
+			return seq2
+		else:
+			return sequence
+
+	def pad_sequence(self, sequence: list[str] | list[int]) -> list[int] | list[str]:
+		if isinstance(sequence[0], int):
+			return self._pad_sequence_int(sequence)
+		else:
+			return self._pad_sequence_str(sequence)

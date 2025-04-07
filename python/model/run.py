@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 from model.dataset import MidiTokenDataset
 from model.model import HybridModel
@@ -29,7 +30,7 @@ def generate(dataset: MidiTokenDataset, model, seed: list[str], length: int):
 	padded = dataset.pad_sequence(seed)
 
 	# Generate tokens
-	generated = padded.copy()
+	generated = [dataset.token_to_id[c] for c in padded]
 	for _ in range(length):
 		x = torch.tensor(generated[-dataset.seq_length:], dtype=torch.long).unsqueeze(0).to(DEVICE)
 		with torch.no_grad():
@@ -43,7 +44,8 @@ def generate(dataset: MidiTokenDataset, model, seed: list[str], length: int):
 		for valid_id in valid_ids:
 			mask[0, valid_id] = 0
 		masked_logits = logits + mask
-		next_token_id = torch.argmax(masked_logits, dim=-1).item()
+		probs = F.softmax(masked_logits, dim=-1)
+		next_token_id = torch.multinomial(probs, num_samples=1).item()
 		generated.append(next_token_id)
 
 	return [dataset.vocab.id_to_token[i] for i in generated]

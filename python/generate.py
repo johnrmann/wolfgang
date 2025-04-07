@@ -3,7 +3,7 @@ import argparse
 
 from core.song import Song
 
-from model.run import get_dataset_and_model
+from model.run import get_dataset_and_model, generate
 from model.constants import SEQ_LENGTH, DEVICE
 from model.seeds import ODE_TO_JOY_SEED
 
@@ -31,11 +31,11 @@ token2id = dataset.vocab.token_to_id
 
 # Starting seed: TEMPO 0 0 120, NOTE 0 0 1 60
 seed_tokens = ODE_TO_JOY_SEED
-sequence = [token2id[t] for t in seed_tokens]
+sequence = seed_tokens[:]
 
 # Pad to SEQ_LENGTH if needed
 if len(sequence) < SEQ_LENGTH:
-	pad_token = token2id["PAD"]  # arbitrary filler token
+	pad_token = "PAD"  # arbitrary filler token
 	sequence = [pad_token] * (SEQ_LENGTH - len(sequence)) + sequence
 
 # Generate tokens
@@ -43,16 +43,8 @@ generated = sequence.copy()
 num_tokens_to_generate = 2048
 print("Generating...")
 
-for _ in range(num_tokens_to_generate):
-	x = torch.tensor(generated[-SEQ_LENGTH:], dtype=torch.long).unsqueeze(0).to(DEVICE)
-	with torch.no_grad():
-		logits = model(x)
-	probs = torch.softmax(logits[0, -1], dim=0)
-	next_token_id = torch.multinomial(probs, num_samples=1).item()
-	generated.append(next_token_id)
-
 # Convert back to readable tokens
-generated_tokens = [id2token[i] for i in generated]
+generated_tokens = generate(dataset, model, seed_tokens, num_tokens_to_generate)
 print("\nGenerated token sequence:\n")
 print(" ".join(generated_tokens))
 
