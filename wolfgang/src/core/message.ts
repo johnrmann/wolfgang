@@ -33,13 +33,27 @@ export interface ChangeTempo extends Message {
 	tempo: number;
 }
 
+export function makeTempo(tempo: number): ChangeTempo {
+	return {
+		messageType: MessageType.CHANGE_TEMPO,
+		tempo,
+	};
+}
+
 /**
  * Nothing for now. Assume that everything defaults to 4/4.
  */
 export interface ChangeTimeSignature extends Message {
 	messageType: MessageType.CHANGE_TIME_SIGNATURE;
+
+	numerator: number;
+	denominator: number;
 }
 
-export interface Song {
-	[index: number]: Message[];
+export function makeTimeSignature(numerator: number, denominator: number): ChangeTimeSignature {
+	return {
+		messageType: MessageType.CHANGE_TIME_SIGNATURE,
+		numerator,
+		denominator,
+	};
 }

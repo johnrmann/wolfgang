@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 
-import { Song, Note } from '@/core/message';
+import { Note } from '@/core/message';
+import { Song } from '@/core/song';
 import { MIN_PITCH, MAX_PITCH, ODE_TO_JOY } from '@/core/constants';
 import { millisecondsPerTick } from '@/core/utils';
 
@@ -36,7 +37,8 @@ export default function MusicEditor() {
 		}
 		else {
 			const interval = setInterval(() => {
-				const notes = song[tickRef.current];
+				console.log('interval');
+				const notes = song.getNotes(tickRef.current);
 				if (notes) {
 					notes.forEach((message) => {
 						if (message.messageType !== 'NOTE') {

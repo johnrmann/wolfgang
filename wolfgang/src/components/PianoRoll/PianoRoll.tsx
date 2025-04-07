@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState, useCallback} from 'react';
 
-import { Song, Note } from '../../core/message';
+import { Note } from '../../core/message';
+import { Song } from '@/core/song';
 import { isPitchMajor } from '@/core/utils';
 import { MAX_PITCH, TICKS_PER_BEAT } from '@/core/constants';
 
@@ -109,19 +110,20 @@ const PianoRoll = (options: Options) => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		drawPianoRollGrid(ctx, canvasSize.width, canvasSize.height);
 
-		for (const ticks of Object.keys(song)) {
-			const noteList = song[Number(ticks)];
-			for (const note of noteList) {
-				if (note.messageType === 'NOTE') {
-					const { pitch, duration } = note as Note;
-					drawPianoRollNote({
-						canvasInfo,
-						pitch,
-						ticks: Number(ticks),
-						duration: duration,
-					});
-				}
+		const messages = song.loopMessages();
+		let result = messages.next();
+		while (!result.done) {
+			const [ticks, message] = result.value;
+			if (message.messageType === 'NOTE') {
+				const { pitch, duration } = message as Note;
+				drawPianoRollNote({
+					canvasInfo,
+					pitch,
+					ticks: ticks,
+					duration: duration,
+				});
 			}
+			result = messages.next();
 		}
 	}, [song]);
 
