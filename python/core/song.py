@@ -35,6 +35,9 @@ class Song:
 		self._tokens = tokens[:]
 		self._midi_ticks_per_beat = midi_ticks_per_beat
 
+	def __len__(self):
+		return len(self._tokens)
+
 	@staticmethod
 	def from_text(texts: list[str]):
 		token_list = []
@@ -106,6 +109,12 @@ class Song:
 			delta_time = post_time - pre_time
 			yield delta_time, *payload
 
+	def to_tokens(self) -> list[str]:
+		big_str = ''
+		for token in self._tokens:
+			big_str += str(token) + ' '
+		return big_str.strip().split(' ')
+
 	def to_midi(self):
 		events = self.message_tuples()
 		mid = mido.MidiFile()
@@ -114,3 +123,51 @@ class Song:
 		for event in events:
 			track.append(song_event_to_mido_message(event))
 		return mid
+
+	def to_json(self):
+		time = 0
+		json = {}
+		for message in self._tokens:
+			if isinstance(message, Step):
+				time += message.ticks
+			else:
+				if time not in json:
+					json[time] = []
+				json[time].append(message.to_json())
+		return json
+
+
+class SongBuilder:
+	_messages: list[Message]
+	_last_time: int = 0
+
+	def __init__(self):
+		self._messages = []
+
+	def _advance_time(self, new_time: int):
+		if new_time < self._last_time:
+			raise ValueError("Time must be greater than last time")
+		if new_time == self._last_time:
+			return
+		delta = new_time - self._last_time
+		self._last_time = new_time
+		self._messages.append(Step(ticks=delta))
+
+	def note(self, time: int, duration: int, pitch: int):
+		self._advance_time(time)
+		self._messages.append(Note(pitch=pitch, duration=duration))
+
+	def tempo(self, time: int, tempo: int):
+		self._advance_time(time)
+		self._messages.append(ChangeTempo(tempo=tempo))
+
+	def time_signature(self, time: int, time_signature: tuple[int, int]):
+		self._advance_time(time)
+		self._messages.append(ChangeTimeSignature(time_signature=time_signature))
+
+	def end(self, time: int):
+		self._advance_time(time)
+		self._messages.append(EndOfSong())
+
+	def build(self) -> Song:
+		return Song(self._messages)

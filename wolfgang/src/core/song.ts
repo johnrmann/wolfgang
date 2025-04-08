@@ -5,7 +5,7 @@ interface SongOptions {
 }
 
 export class Song {
-	private messages: Record<number, Message[]> = {};
+	messages: Record<number, Message[]> = {};
 
 	constructor(params?: SongOptions) {
 		let startTempo = 120;
@@ -30,7 +30,7 @@ export class Song {
 		for (const loopTick of Object.keys(this.messages)) {
 			const atThisTick = this.messages[Number(loopTick)];
 			for (const message of atThisTick) {
-				if (message.messageType === 'NOTE') {
+				if (message.type === 'NOTE') {
 					yield [Number(loopTick), message as Note];
 				}
 			}
@@ -48,7 +48,7 @@ export class Song {
 				break;
 			}
 			for (const message of atThisTick) {
-				if (message.messageType === 'CHANGE_TIME_SIGNATURE') {
+				if (message.type === 'TIME_SIGNATURE') {
 					const timeSignature = message as ChangeTimeSignature;
 					num = timeSignature.numerator;
 					denom = timeSignature.denominator;
@@ -91,7 +91,7 @@ export class Song {
 		for (const loopTick of Object.keys(this.messages)) {
 			const atThisTick = this.messages[Number(loopTick)];
 			for (const message of atThisTick) {
-				if (message.messageType === 'NOTE') {
+				if (message.type === 'NOTE') {
 					const note = message as Note;
 					const noteStart = Number(loopTick);
 					const noteEnd = noteStart + note.duration;
@@ -114,7 +114,7 @@ export class Song {
 		}
 		const notes: Note[] = [];
 		for (const message of atThisTick) {
-			if (message.messageType === 'NOTE') {
+			if (message.type === 'NOTE') {
 				notes.push(message as Note);
 			}
 		}

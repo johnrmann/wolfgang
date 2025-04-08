@@ -114,7 +114,7 @@ const PianoRoll = (options: Options) => {
 		let result = messages.next();
 		while (!result.done) {
 			const [ticks, message] = result.value;
-			if (message.messageType === 'NOTE') {
+			if (message.type === 'NOTE') {
 				const { pitch, duration } = message as Note;
 				drawPianoRollNote({
 					canvasInfo,

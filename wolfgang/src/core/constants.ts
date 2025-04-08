@@ -20,6 +20,8 @@ export const TICKS_PER_BEAT = 12;
 export const MAX_PITCH = 108;
 export const MIN_PITCH = 21;
 
+export const EMPTY_SONG: Song = new Song();
+
 export const ODE_TO_JOY: Song = new Song();
 ODE_TO_JOY.addNote(0, 12, 64);
 ODE_TO_JOY.addNote(12, 12, 64);

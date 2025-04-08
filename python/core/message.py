@@ -18,6 +18,9 @@ class Message:
 	"""
 	pass
 
+	def to_json(self):
+		pass
+
 
 class Step(Message):
 	"""
@@ -46,6 +49,9 @@ class Step(Message):
 
 	def __str__(self):
 		return f"STEP T{self.ticks}"
+
+	def to_json(self):
+		return None
 
 
 def merge_adjacent_steps(msgs: list[Message]):
@@ -103,6 +109,13 @@ class Note(Message):
 		pitch = self.pitch
 		return f"NOTE D{duration} P{pitch}"
 
+	def to_json(self):
+		return {
+			"type": "NOTE",
+			"pitch": self.pitch,
+			"duration": self.duration,
+		}
+
 
 class ChangeTempo(Message):
 	tempo: int
@@ -117,6 +130,12 @@ class ChangeTempo(Message):
 	def __str__(self):
 		tempo = bpm_to_tempo_marking(self.tempo)
 		return f"TEMPO {tempo.value}"
+
+	def to_json(self):
+		return {
+			"type": "TEMPO",
+			"tempo": self.tempo,
+		}
 
 
 TimeSignature = tuple[int, int]
@@ -155,8 +174,20 @@ class ChangeTimeSignature(Message):
 		ts = time_signature_string(self.time_signature)
 		return f"TIMESIG {ts}"
 
+	def to_json(self):
+		return {
+			"type": "TIMESIG",
+			"numerator": self.time_signature[0],
+			"denominator": self.time_signature[1],
+		}
+
 
 class EndOfSong(Message):
 	def __str__(self):
 		control = MessageType.END.value
 		return f"{control}"
+
+	def to_json(self):
+		return {
+			"type": "END",
+		}
