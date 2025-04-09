@@ -66,6 +66,13 @@ class MidiTokenizer:
 		))
 
 	def tempo(self, tempo: int = 120, delta_midi: int = None):
+		if (
+			delta_midi == 0 and
+			len(self._messages) != 0 and
+			isinstance(self._messages[-1], ChangeTempo)
+		):
+			self._messages[-1].tempo = tempo
+			return
 		self.advance_time(delta_midi)
 		self._messages.append(ChangeTempo(tempo=tempo))
 

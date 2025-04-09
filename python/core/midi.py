@@ -13,10 +13,9 @@ def sort_messages(mido_msgs: list[MessageTuple]) -> list[mido.Message]:
 	retimed = [sorted_msgs[0][1]]
 	for i in range(1, len(sorted_msgs)):
 		last_time, _ = sorted_msgs[i - 1]
-		this_time, _ = sorted_msgs[i]
-		retimed.append(
-			sorted_msgs[i][1].copy(time=this_time - last_time)
-		)
+		this_time, this_msg = sorted_msgs[i]
+		this_msg.time = this_time - last_time
+		retimed.append(this_msg)
 	return [msg for _, msg in sorted_msgs]
 
 
