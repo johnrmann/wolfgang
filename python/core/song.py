@@ -109,6 +109,12 @@ class Song:
 			delta_time = post_time - pre_time
 			yield delta_time, *payload
 
+	def to_message_strings(self) -> list[str]:
+		messages = []
+		for message in self._tokens:
+			messages.append(str(message))
+		return messages
+
 	def to_tokens(self) -> list[str]:
 		big_str = ''
 		for token in self._tokens:
@@ -135,6 +141,18 @@ class Song:
 					json[time] = []
 				json[time].append(message.to_json())
 		return json
+
+	def transposed(self, delta_pitch: int):
+		"""
+		Create a copy of this song transposed to a new pitch.
+		"""
+		new_messages = []
+		for message in self._tokens:
+			if isinstance(message, Note):
+				new_messages.append(message.transposed(delta_pitch))
+			else:
+				new_messages.append(message)
+		return Song(new_messages, midi_ticks_per_beat=self._midi_ticks_per_beat)
 
 
 class SongBuilder:

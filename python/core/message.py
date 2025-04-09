@@ -116,6 +116,15 @@ class Note(Message):
 			"duration": self.duration,
 		}
 
+	def transposed(self, interval: int):
+		"""
+		Transposes the note by the given interval.
+		"""
+		return Note(
+			pitch=self.pitch + interval,
+			duration=self.duration,
+		)
+
 
 class ChangeTempo(Message):
 	tempo: int
