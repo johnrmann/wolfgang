@@ -8,7 +8,7 @@ from core.song import Song, SongBuilder
 from model.run import get_dataset_and_model, generate
 from model.seeds import MIDDLE_C_SEED
 
-model_path = "../model/2025-04-06-pilot.pth"
+model_path = "../model/2025-04-09-pilot-b.pth"
 
 app = FastAPI()
 dataset, model = get_dataset_and_model(model_path, debug=False)
