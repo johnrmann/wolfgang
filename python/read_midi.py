@@ -37,7 +37,7 @@ transpose_range = args.transpose_range
 def write_song(song: Song, to_path: str):
 	"""Write a song to a file."""
 	with open(to_path, 'w') as f:
-		tokens = song.to_tokens()
+		tokens = song.to_message_strings()
 		for token in tokens:
 			f.write(str(token) + '\n')
 	print("Wrote output to", to_path)
