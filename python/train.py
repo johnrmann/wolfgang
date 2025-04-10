@@ -35,6 +35,12 @@ parser.add_argument(
 	default=10,
 	help="Number of training epochs."
 )
+parser.add_argument(
+	'--bars',
+	type=bool,
+	default=False,
+	help="Progress bars?"
+)
 args = parser.parse_args()
 
 # Data
@@ -42,6 +48,7 @@ print("Loading data...")
 dataset = MidiTokenDataset(args.data_path)
 vocab_size = len(dataset.vocab)
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+bars = args.bars
 
 # Model, loss, optimizer
 model = HybridModel(vocab_size).to(DEVICE)
@@ -51,9 +58,13 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 # Training Loop
 if __name__ == '__main__':
 	print("Training...")
-	for epoch in tqdm(range(args.epochs)):
+	for epoch in tqdm(range(args.epochs), disable=not bars):
 		total_loss = 0
-		inner_count = tqdm(total=len(dataloader), desc=f"Epoch {epoch+1}/{args.epochs}")
+		inner_count = tqdm(
+			total=len(dataloader),
+			desc=f"Epoch {epoch+1}/{args.epochs}",
+			disable=not bars,
+		)
 		for x, y in dataloader:
 			x, y = x.to(DEVICE), y.to(DEVICE)
 			optimizer.zero_grad()
